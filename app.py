@@ -44,7 +44,7 @@ def main_screen():
     
     # QR Code for login
     qr = qrcode.QRCode()
-    qr.add_data(st.secrets.get("app_url", "http://localhost:8501"))  # Replace with your deployed URL
+    qr.add_data(st.secrets.get("app_url", "http://localhost:8501"))
     qr.make()
     qr_img = qr.make_image(fill='black', back_color='white')
     qr_img.save("qr_login.png")
@@ -72,7 +72,7 @@ def main_screen():
             else:
                 st.error("יש להזין שם משתמש ומעבדה - Please enter username and lab")
 
-# Borrow screen
+# Borrow screen with editing capability
 def borrow_screen(tools_dict):
     st.subheader("השאלת כלים - Borrow Tools")
     tool_name = st.text_input("שם הכלי (עברית או אנגלית) - Tool Name (Hebrew or English)")
@@ -95,10 +95,30 @@ def borrow_screen(tools_dict):
         else:
             st.error("יש לרשום שם כלי - Please enter a tool name")
 
+    # Display and edit borrow session
     if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
         st.write("כלים שנבחרו ב-Session זה - Tools Selected in This Session:")
-        for item in st.session_state['borrow_session']:
-            st.write(f"{item['שם הכלי']} - {item['שם הכלי באנגלית']} - כמות: {item['כמות']} - Quantity: {item['כמות']}")
+        edited_session = []
+        for i, item in enumerate(st.session_state['borrow_session']):
+            col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
+            with col1:
+                new_tool_name = st.text_input(f"כלי {i+1}", value=item['שם הכלי'], key=f"tool_{i}")
+            with col2:
+                new_quantity = st.number_input(f"כמות {i+1}", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}")
+            with col3:
+                if st.button("מחק - Delete", key=f"del_{i}"):
+                    continue  # Skip this item to delete it
+            with col4:
+                st.write(f"{item['שם הכלי באנגלית']}")
+            new_tool_english = tools_dict.get(new_tool_name, "")
+            edited_session.append({
+                'שם משתמש': item['שם משתמש'],
+                'שם מעבדה': item['שם מעבדה'],
+                'שם הכלי': new_tool_name,
+                'שם הכלי באנגלית': new_tool_english,
+                'כמות': new_quantity
+            })
+        st.session_state['borrow_session'] = edited_session
 
     if st.button("אשר את כל ההשאלות - Confirm All Borrowings"):
         if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
@@ -179,7 +199,7 @@ def return_screen():
     if st.button("חזור - Back"):
         st.session_state['screen'] = 'main'
 
-# History screen (for remote monitoring)
+# History screen
 def history_screen():
     st.subheader("היסטוריית השאלות - Borrowing History")
     try:
