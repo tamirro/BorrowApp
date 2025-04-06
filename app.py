@@ -68,7 +68,7 @@ def main_screen():
     """, unsafe_allow_html=True)
 
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=300, use_container_width=True)
+        st.image("mdde.jpg", width=500, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
@@ -86,7 +86,7 @@ def main_screen():
     qr.make()
     qr_img = qr.make_image(fill='black', back_color='white')
     qr_img.save("qr_login.png")
-    st.image("qr_login.png", caption="סרוק כדי לגשת - Scan to Access", width=100, use_container_width=True)
+    st.image("qr_login.png", caption="סרוק כדי לגשת לאפליקציה מהנייד - Scan to Access App from Cellphone", width=50, use_container_width=True)
 
     st.markdown('<div class="center">שם משתמש - Username:</div>', unsafe_allow_html=True)
     with st.container():
@@ -117,7 +117,7 @@ def main_screen():
 # Borrow screen
 def borrow_screen():
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=300, use_container_width=True)
+        st.image("mdde.jpg", width=500, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
@@ -193,7 +193,7 @@ def borrow_screen():
 # Return screen
 def return_screen():
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=300, use_container_width=True)
+        st.image("mdde.jpg", width=500, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
@@ -262,7 +262,7 @@ def return_screen():
 # History screen
 def history_screen():
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=300, use_container_width=True)
+        st.image("mdde.jpg", width=500, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
