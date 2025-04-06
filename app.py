@@ -3,33 +3,21 @@ import pandas as pd
 import qrcode
 from datetime import datetime
 import os
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
 from PIL import Image
-
-# Authenticate with Google Drive
-gauth = GoogleAuth()
-gauth.LocalWebserverAuth()
-drive = GoogleDrive(gauth)
 
 # File paths
 labs_file = "labs.xlsx"
 tools_file = "tools.xlsx"
 borrow_file_name = "borrowed_equipment.xlsx"
 
-# Fetch or create the borrow history file on Google Drive
+# Load or create the borrow history file locally
 def get_borrow_file():
-    file_list = drive.ListFile({'q': f"title='{borrow_file_name}'"}).GetList()
-    if file_list:
-        file_id = file_list[0]['id']
-        file = drive.CreateFile({'id': file_id})
-        file.GetContentFile(borrow_file_name)
+    if os.path.exists(borrow_file_name):
+        return pd.read_excel(borrow_file_name)
     else:
-        file = drive.CreateFile({'title': borrow_file_name})
-        file.Upload()
-    return file
+        return pd.DataFrame(columns=['שם משתמש', 'שם מעבדה', 'שם הכלי', 'כמות', 'תאריך השאלה'])
 
-borrow_file = get_borrow_file()
+borrow_df = get_borrow_file()
 
 # Load labs
 @st.cache_data
@@ -227,8 +215,6 @@ def borrow_screen():
                         existing_borrows = pd.read_excel(borrow_file_name)
                         borrow_df = pd.concat([existing_borrows, borrow_df])
                     borrow_df.to_excel(borrow_file_name, index=False, engine='openpyxl')
-                    borrow_file.SetContentFile(borrow_file_name)
-                    borrow_file.Upload()
                     st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
                     st.session_state['borrow_session'] = []
                     st.session_state['screen'] = 'main'
@@ -320,8 +306,6 @@ def return_screen():
                     borrow_df.loc[mask, 'כמות'] -= return_item['כמות להחזיר']
                 borrow_df = borrow_df[borrow_df['כמות'] > 0]
                 borrow_df.to_excel(borrow_file_name, index=False, engine='openpyxl')
-                borrow_file.SetContentFile(borrow_file_name)
-                borrow_file.Upload()
                 st.success("כל ההחזרות בוצעו בהצלחה - All returns completed successfully")
                 st.session_state['return_session'] = []
                 st.session_state['screen'] = 'main'
@@ -377,7 +361,6 @@ elif st.session_state['screen'] == 'history':
     history_screen()
 
 # Sidebar for navigation
-st.sidebar.markdown('<h2 class="center">ניווט - Navigation</2>', unsafe_allow_html=True)
+st.sidebar.markdown('<h2 class="center">ניווט - Navigation</h2>', unsafe_allow_html=True)
 if st.sidebar.button("דף ראשי - Main Page"):
     st.session_state['screen'] = 'main'
-if st.sidebar.button("Borrow
