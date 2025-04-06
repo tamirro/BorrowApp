@@ -31,6 +31,9 @@ def main_screen():
             direction: rtl;
             text-align: right;
         }
+        .center {
+            text-align: center !important;
+        }
         .center-inputs {
             display: flex;
             justify-content: center;
@@ -49,6 +52,11 @@ def main_screen():
             height: 38px;
             width: 100%;
             direction: rtl;
+            margin: 0 auto;
+            display: block;
+        }
+        .sidebar .stButton>button {
+            width: 60px; /* Wider delete button */
         }
         </style>
     """, unsafe_allow_html=True)
@@ -58,8 +66,8 @@ def main_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h1 class="rtl">מערכת השאלת ציוד</h1>', unsafe_allow_html=True)
-    st.markdown('<h1 class="rtl">Equipment Borrowing System</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="center">מערכת השאלת ציוד</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="center">Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
     qr = qrcode.QRCode()
     app_url = "http://localhost:8501"
@@ -74,10 +82,10 @@ def main_screen():
     qr_img.save("qr_login.png")
     st.image("qr_login.png", caption="סרוק כדי לגשת - Scan to Access", width=100, use_container_width=True)
 
-    st.markdown('<div class="rtl">שם משתמש - Username:</div>', unsafe_allow_html=True)
+    st.markdown('<div class="center">שם משתמש - Username:</div>', unsafe_allow_html=True)
     with st.container():
         username = st.text_input("", key="username_input", label_visibility="collapsed")
-    st.markdown('<div class="rtl">בחר מעבדה - Select Lab:</div>', unsafe_allow_html=True)
+    st.markdown('<div class="center">בחר מעבדה - Select Lab:</div>', unsafe_allow_html=True)
     with st.container():
         labs = load_labs()
         lab = st.selectbox("", labs, key="lab_input", label_visibility="collapsed")
@@ -107,13 +115,13 @@ def borrow_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="rtl">השאלת כלים</h2>', unsafe_allow_html=True)
-    st.markdown('<h2 class="rtl">Borrow Tools</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">השאלת כלים</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">Borrow Tools</h2>', unsafe_allow_html=True)
     
     with st.container():
-        st.markdown('<div class="rtl">שם הכלי - Tool Name:</div>', unsafe_allow_html=True)
+        st.markdown('<div class="center">שם הכלי - Tool Name:</div>', unsafe_allow_html=True)
         tool_name = st.text_input("", key="new_tool_input", label_visibility="collapsed")
-        st.markdown('<div class="rtl">כמות להשאיל - Quantity to Borrow:</div>', unsafe_allow_html=True)
+        st.markdown('<div class="center">כמות להשאיל - Quantity to Borrow:</div>', unsafe_allow_html=True)
         quantity = st.number_input("", min_value=1, step=1, key="new_qty_input", label_visibility="collapsed")
         
         if st.button("הוסף לרשימה - Add to List"):
@@ -133,7 +141,7 @@ def borrow_screen():
     # Move cart to sidebar if items exist
     if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
         with st.sidebar:
-            st.markdown('<div class="rtl">כלים שנבחרו - Tools Selected</div>', unsafe_allow_html=True)
+            st.markdown('<div class="center">כלים שנבחרו - Tools Selected</div>', unsafe_allow_html=True)
             edited_session = []
             for i, item in enumerate(st.session_state['borrow_session']):
                 col1, col2, col3 = st.columns([3, 1, 1])
@@ -142,7 +150,7 @@ def borrow_screen():
                 with col2:
                     new_quantity = st.number_input("", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}_input", label_visibility="collapsed")
                 with col3:
-                    if st.button("מחק - Delete", key=f"del_{i}"):
+                    if st.button("🗑️", key=f"del_{i}"):  # Trash icon instead of "מחק"
                         continue
                 edited_session.append({
                     'שם משתמש': item['שם משתמש'],
@@ -183,21 +191,22 @@ def return_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="rtl">החזרת כלים</h2>', unsafe_allow_html=True)
-    st.markdown('<h2 class="rtl">Return Tools</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">החזרת כלים</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">Return Tools</h2>', unsafe_allow_html=True)
     
     try:
         borrow_df = pd.read_excel(borrow_file)
         user_borrows = borrow_df[(borrow_df['שם משתמש'] == st.session_state['user']) & 
                                  (borrow_df['שם מעבדה'] == st.session_state['selected_lab'])]
         if not user_borrows.empty:
-            st.markdown('<div class="rtl">כלים שהושאלו בעבר - Previously Borrowed Tools:</div>', unsafe_allow_html=True)
+            st.markdown('<div class="center">כלים שהושאלו בעבר - Previously Borrowed Tools:</div>', unsafe_allow_html=True)
             st.dataframe(user_borrows)
-            tool_options = user_borrows.apply(lambda row: f"{row['שם הכלי']} (כמות: {row['כמות']}, תאריך: {row['תאריך השאלה']})", axis=1).tolist()
-            st.markdown('<div class="rtl">בחר כלי להחזרה - Select Tool to Return:</div>', unsafe_allow_html=True)
+            st.divider()  # Separating line
+            st.markdown('<div class="center">בחר כלי להחזרה - Select Tool to Return:</div>', unsafe_allow_html=True)
             with st.container():
+                tool_options = user_borrows.apply(lambda row: f"{row['שם הכלי']} (כמות: {row['כמות']}, תאריך: {row['תאריך השאלה']})", axis=1).tolist()
                 selected_tool = st.selectbox("", tool_options, key="return_tool_input", label_visibility="collapsed")
-            st.markdown('<div class="rtl">כמות להחזיר - Quantity to Return:</div>', unsafe_allow_html=True)
+            st.markdown('<div class="center">כמות להחזיר - Quantity to Return:</div>', unsafe_allow_html=True)
             with st.container():
                 quantity_to_return = st.number_input("", min_value=1, step=1, key="return_qty_input", label_visibility="collapsed")
             
@@ -218,9 +227,9 @@ def return_screen():
                     st.error("כמות ההחזרה גדולה מהכמות המושאלת - Return quantity exceeds borrowed quantity")
 
             if 'return_session' in st.session_state and st.session_state['return_session']:
-                st.markdown('<div class="rtl">כלים להחזרה ב-Session זה - Tools to Return in This Session:</div>', unsafe_allow_html=True)
+                st.markdown('<div class="center">כלים להחזרה ב-Session זה - Tools to Return in This Session:</div>', unsafe_allow_html=True)
                 for item in st.session_state['return_session']:
-                    st.markdown(f'<div class="rtl">{item["שם הכלי"]} - כמות - Quantity: {item["כמות להחזיר"]}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="center">{item["שם הכלי"]} - כמות - Quantity: {item["כמות להחזיר"]}</div>', unsafe_allow_html=True)
 
             if st.button("אשר את כל ההחזרות - Confirm All Returns"):
                 for return_item in st.session_state['return_session']:
@@ -235,9 +244,9 @@ def return_screen():
                 st.session_state['return_session'] = []
                 st.session_state['screen'] = 'main'
         else:
-            st.markdown('<div class="rtl">אין השאלות קודמות - No previous borrowings</div>', unsafe_allow_html=True)
+            st.markdown('<div class="center">אין השאלות קודמות - No previous borrowings</div>', unsafe_allow_html=True)
     except FileNotFoundError:
-        st.markdown('<div class="rtl">אין השאלות קודמות - No previous borrowings</div>', unsafe_allow_html=True)
+        st.markdown('<div class="center">אין השאלות קודמות - No previous borrowings</div>', unsafe_allow_html=True)
     except Exception as e:
         st.error(f"שגיאה בטעינת ההשאלות - Error loading borrowings: {str(e)}")
 
@@ -251,13 +260,13 @@ def history_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="rtl">היסטוריית השאלות</h2>', unsafe_allow_html=True)
-    st.markdown('<h2 class="rtl">Borrowing History</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">היסטוריית השאלות</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">Borrowing History</h2>', unsafe_allow_html=True)
     try:
         borrow_df = pd.read_excel(borrow_file)
         st.dataframe(borrow_df)
     except FileNotFoundError:
-        st.markdown('<div class="rtl">אין נתונים זמינים - No data available</div>', unsafe_allow_html=True)
+        st.markdown('<div class="center">אין נתונים זמינים - No data available</div>', unsafe_allow_html=True)
     except Exception as e:
         st.error(f"שגיאה בטעינת ההיסטוריה - Error loading history: {str(e)}")
     if st.button("חזור - Back"):
@@ -277,7 +286,7 @@ elif st.session_state['screen'] == 'history':
     history_screen()
 
 # Sidebar for navigation
-st.sidebar.markdown('<h2 class="rtl">ניווט - Navigation</h2>', unsafe_allow_html=True)
+st.sidebar.markdown('<h2 class="center">ניווט - Navigation</h2>', unsafe_allow_html=True)
 if st.sidebar.button("דף ראשי - Main Page"):
     st.session_state['screen'] = 'main'
 if st.sidebar.button("היסטוריה - History"):
