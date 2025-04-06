@@ -8,7 +8,7 @@ from PIL import Image
 # File paths
 labs_file = "labs.xlsx"
 tools_file = "tools.xlsx"
-persistent_directory = os.path.expanduser("~/BorrowApp")  # Using a directory within the user's home directory
+persistent_directory = os.path.expanduser("~/.BorrowApp")  # Using a hidden directory within the user's home directory
 borrow_file = os.path.join(persistent_directory, "borrowed_equipment.xlsx")
 
 # Ensure the persistent directory exists
@@ -56,7 +56,7 @@ def main_screen():
         }
         .stButton>button {
             height: 50px; /* Taller buttons */
-            width: 200px; /* Wider buttons */
+            width: 250px; /* Wider buttons to fit text in one row */
             direction: rtl;
             margin: 10px auto; /* Spacing and centering */
             display: block;
@@ -112,7 +112,7 @@ def main_screen():
     
     col1, col2 = st.columns([1, 1], gap="medium")  # Adjusted columns with gap
     with col1:
-        if st.button("השאל כלים - Borrow Tools", key="borrow_btn"):
+        if st.button("השאל כלים - Borrow Tools", key="borrow_btn", use_container_width=True):
             if username and lab:
                 st.session_state['user'] = username
                 st.session_state['selected_lab'] = lab
@@ -120,7 +120,7 @@ def main_screen():
             else:
                 st.error("יש להזין שם משתמש ומעבדה - Please enter username and lab")
     with col2:
-        if st.button("החזר כלים - Return Tools", key="return_btn"):
+        if st.button("החזר כלים - Return Tools", key="return_btn", use_container_width=True):
             if username and lab:
                 st.session_state['user'] = username
                 st.session_state['selected_lab'] = lab
@@ -166,19 +166,30 @@ def borrow_screen():
         st.markdown('<div class="center-text">כמות להשאיל - Quantity to Borrow:</div>', unsafe_allow_html=True)
         quantity = st.number_input("", min_value=1, step=1, key="new_qty_input", label_visibility="collapsed")
         
-        if st.button("הוסף לרשימה - Add to List"):
-            if tool_name:
-                if 'borrow_session' not in st.session_state:
-                    st.session_state['borrow_session'] = []
-                st.session_state['borrow_session'].append({
-                    'שם משתמש': st.session_state['user'],
-                    'שם מעבדה': st.session_state['selected_lab'],
-                    'שם הכלי': tool_name,
-                    'כמות': quantity
-                })
-                st.success(f"נוסף - Added: {tool_name} - כמות - Quantity: {quantity}")
-            else:
-                st.error("יש לרשום שם כלי - Please enter a tool name")
+    center_button_style = """
+    <style>
+    .stButton>button {
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    </style>
+    """
+    st.markdown(center_button_style, unsafe_allow_html=True)
+
+    if st.button("הוסף לרשימה - Add to List"):
+        if tool_name:
+            if 'borrow_session' not in st.session_state:
+                st.session_state['borrow_session'] = []
+            st.session_state['borrow_session'].append({
+                'שם משתמש': st.session_state['user'],
+                'שם מעבדה': st.session_state['selected_lab'],
+                'שם הכלי': tool_name,
+                'כמות': quantity
+            })
+            st.success(f"נוסף - Added: {tool_name} - כמות - Quantity: {quantity}")
+        else:
+            st.error("יש לרשום שם כלי - Please enter a tool name")
 
     # Move cart to sidebar if items exist
     if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
@@ -192,7 +203,7 @@ def borrow_screen():
                 with col2:
                     new_quantity = st.number_input("", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}_input", label_visibility="collapsed")
                 with col3:
-                    if st.button("🗑️", key=f"del_{i}"):
+                    if st.button("🗑️", key=f"del_{i}", help="Delete tool"):
                         continue
                 edited_session.append({
                     'שם משתמש': item['שם משתמש'],
@@ -274,6 +285,8 @@ def return_screen():
             with st.container():
                 quantity_to_return = st.number_input("", min_value=1, step=1, key="return_qty_input", label_visibility="collapsed")
             
+            st.markdown(center_button_style, unsafe_allow_html=True)
+
             if st.button("הוסף להחזרה - Add to Return"):
                 if quantity_to_return <= int(selected_tool.split("כמות: ")[1].split(",")[0]):
                     tool_name = selected_tool.split(" (")[0]
@@ -332,8 +345,8 @@ def history_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="center">היסטוריית השאלות</h2>', unsafe_allow_html=True)
-    st.markdown('<h2 class="center">Borrowing History</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">היסטוריית השאלות</2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">Borrowing History</2>', unsafe_allow_html=True)
     try:
         borrow_df = pd.read_excel(borrow_file)
         st.dataframe(borrow_df)
@@ -358,8 +371,8 @@ elif st.session_state['screen'] == 'history':
     history_screen()
 
 # Sidebar for navigation
-st.sidebar.markdown('<h2 class="center">ניווט - Navigation</h2>', unsafe_allow_html=True)
+st.sidebar.markdown('<h2 class="center">ניווט - Navigation</2>', unsafe_allow_html=True)
 if st.sidebar.button("דף ראשי - Main Page"):
     st.session_state['screen'] = 'main'
-if st.sidebar.button("היסטוריה - History"):
+if st.sidebar.button("Borrow History of the User"):
     st.session_state['screen'] = 'history'
