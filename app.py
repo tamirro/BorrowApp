@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import qrcode
 from datetime import datetime
 import os
 from PIL import Image
@@ -258,6 +257,17 @@ def return_screen():
     st.markdown('<h2 class="center">החזרת כלים</h2>', unsafe_allow_html=True)
     st.markdown('<h2 class="center">Return Tools</h2>', unsafe_allow_html=True)
     
+    center_button_style = """
+    <style>
+    .stButton>button {
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    </style>
+    """
+    st.markdown(center_button_style, unsafe_allow_html=True)
+
     try:
         borrow_df = pd.read_excel(borrow_file_name)
         user_borrows = borrow_df[(borrow_df['שם משתמש'] == st.session_state['user']) & 
