@@ -54,47 +54,47 @@ def main_screen():
     """, unsafe_allow_html=True)
 
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=300, use_column_width="auto")
+        st.image("mdde.jpg", width=300, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
     st.markdown('<h1 class="rtl">מערכת השאלת ציוד - Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
     qr = qrcode.QRCode()
-    app_url = "http://localhost:8501"  # Default URL
+    app_url = "http://localhost:8501"
     try:
         if "app_url" in st.secrets:
             app_url = st.secrets["app_url"]
     except Exception:
-        pass  # Fallback to default if secrets fail
+        pass
     qr.add_data(app_url)
     qr.make()
     qr_img = qr.make_image(fill='black', back_color='white')
     qr_img.save("qr_login.png")
-    st.image("qr_login.png", caption="סרוק כדי לגשת - Scan to Access", width=200)
+    st.image("qr_login.png", caption="סרוק כדי לגשת - Scan to Access", width=200, use_container_width=True)
 
     st.markdown('<div class="rtl">שם משתמש - Username:</div>', unsafe_allow_html=True)
     with st.container():
-        username = st.text_input("", key="username")
-    labs = load_labs()
+        username = st.text_input("", key="username_input", label_visibility="collapsed")
     st.markdown('<div class="rtl">בחר מעבדה - Select Lab:</div>', unsafe_allow_html=True)
     with st.container():
-        lab = st.selectbox("", labs, key="lab")
+        labs = load_labs()
+        lab = st.selectbox("", labs, key="lab_input", label_visibility="collapsed")
     
     col1, col2 = st.columns(2)
     with col1:
         if st.button("השאל כלים - Borrow Tools"):
             if username and lab:
-                st.session_state['username'] = username
-                st.session_state['lab'] = lab
+                st.session_state['user'] = username
+                st.session_state['selected_lab'] = lab
                 st.session_state['screen'] = 'borrow'
             else:
                 st.error("יש להזין שם משתמש ומעבדה - Please enter username and lab")
     with col2:
         if st.button("החזר כלים - Return Tools"):
             if username and lab:
-                st.session_state['username'] = username
-                st.session_state['lab'] = lab
+                st.session_state['user'] = username
+                st.session_state['selected_lab'] = lab
                 st.session_state['screen'] = 'return'
             else:
                 st.error("יש להזין שם משתמש ומעבדה - Please enter username and lab")
@@ -102,7 +102,7 @@ def main_screen():
 # Borrow screen
 def borrow_screen():
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=300, use_column_width="auto")
+        st.image("mdde.jpg", width=300, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
@@ -111,20 +111,19 @@ def borrow_screen():
     
     with st.container():
         st.markdown('<div class="rtl">שם הכלי - Tool Name:</div>', unsafe_allow_html=True)
-        tool_name = st.text_input("", key="new_tool")
+        tool_name = st.text_input("", key="new_tool_input", label_visibility="collapsed")
         st.markdown('<div class="rtl">כמות להשאיל - Quantity to Borrow:</div>', unsafe_allow_html=True)
-        quantity = st.number_input("", min_value=1, step=1, key="new_qty")
+        quantity = st.number_input("", min_value=1, step=1, key="new_qty_input", label_visibility="collapsed")
         
         if st.button("הוסף לרשימה - Add to List"):
             if tool_name:
                 if 'borrow_session' not in st.session_state:
                     st.session_state['borrow_session'] = []
                 st.session_state['borrow_session'].append({
-                    'שם משתמש': st.session_state['username'],
-                    'שם מעבדה': st.session_state['lab'],
+                    'שם משתמש': st.session_state['user'],
+                    'שם מעבדה': st.session_state['selected_lab'],
                     'שם הכלי': tool_name,
-                    'כמות': quantity,
-                    'תאריך השאלה': None
+                    'כמות': quantity
                 })
                 st.success(f"נוסף - Added: {tool_name} - כמות - Quantity: {quantity}")
             else:
@@ -138,9 +137,9 @@ def borrow_screen():
         for i, item in enumerate(st.session_state['borrow_session']):
             col1, col2, col3 = st.columns([3, 1, 1])
             with col1:
-                new_tool_name = st.text_input("", value=item['שם הכלי'], key=f"tool_{i}")
+                new_tool_name = st.text_input("", value=item['שם הכלי'], key=f"tool_{i}_input", label_visibility="collapsed")
             with col2:
-                new_quantity = st.number_input("", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}")
+                new_quantity = st.number_input("", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}_input", label_visibility="collapsed")
             with col3:
                 if st.button("מחק - Delete", key=f"del_{i}"):
                     continue
@@ -148,8 +147,7 @@ def borrow_screen():
                 'שם משתמש': item['שם משתמש'],
                 'שם מעבדה': item['שם מעבדה'],
                 'שם הכלי': new_tool_name,
-                'כמות': new_quantity,
-                'תאריך השאלה': item['תאריך השאלה']
+                'כמות': new_quantity
             })
         st.session_state['borrow_session'] = edited_session
 
@@ -180,7 +178,7 @@ def borrow_screen():
 # Return screen
 def return_screen():
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=300, use_column_width="auto")
+        st.image("mdde.jpg", width=300, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
@@ -188,18 +186,18 @@ def return_screen():
     
     try:
         borrow_df = pd.read_excel(borrow_file)
-        user_borrows = borrow_df[(borrow_df['שם משתמש'] == st.session_state['username']) & 
-                                 (borrow_df['שם מעבדה'] == st.session_state['lab'])]
+        user_borrows = borrow_df[(borrow_df['שם משתמש'] == st.session_state['user']) & 
+                                 (borrow_df['שם מעבדה'] == st.session_state['selected_lab'])]
         if not user_borrows.empty:
             st.markdown('<div class="rtl">כלים שהושאלו בעבר - Previously Borrowed Tools:</div>', unsafe_allow_html=True)
             st.dataframe(user_borrows)
             tool_options = user_borrows.apply(lambda row: f"{row['שם הכלי']} (כמות: {row['כמות']}, תאריך: {row['תאריך השאלה']})", axis=1).tolist()
             st.markdown('<div class="rtl">בחר כלי להחזרה - Select Tool to Return:</div>', unsafe_allow_html=True)
             with st.container():
-                selected_tool = st.selectbox("", tool_options)
+                selected_tool = st.selectbox("", tool_options, key="return_tool_input", label_visibility="collapsed")
             st.markdown('<div class="rtl">כמות להחזיר - Quantity to Return:</div>', unsafe_allow_html=True)
             with st.container():
-                quantity_to_return = st.number_input("", min_value=1, step=1)
+                quantity_to_return = st.number_input("", min_value=1, step=1, key="return_qty_input", label_visibility="collapsed")
             
             if st.button("הוסף להחזרה - Add to Return"):
                 if quantity_to_return <= int(selected_tool.split("כמות: ")[1].split(",")[0]):
@@ -207,8 +205,8 @@ def return_screen():
                     if 'return_session' not in st.session_state:
                         st.session_state['return_session'] = []
                     st.session_state['return_session'].append({
-                        'שם משתמש': st.session_state['username'],
-                        'שם מעבדה': st.session_state['lab'],
+                        'שם משתמש': st.session_state['user'],
+                        'שם מעבדה': st.session_state['selected_lab'],
                         'שם הכלי': tool_name,
                         'כמות להחזיר': quantity_to_return,
                         'תאריך השאלה': selected_tool.split("תאריך: ")[1].rstrip(")")
@@ -247,7 +245,7 @@ def return_screen():
 # History screen
 def history_screen():
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=300, use_column_width="auto")
+        st.image("mdde.jpg", width=300, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
