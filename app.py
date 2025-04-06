@@ -3,17 +3,33 @@ import pandas as pd
 import qrcode
 from datetime import datetime
 import os
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 from PIL import Image
+
+# Authenticate with Google Drive
+gauth = GoogleAuth()
+gauth.LocalWebserverAuth()
+drive = GoogleDrive(gauth)
 
 # File paths
 labs_file = "labs.xlsx"
 tools_file = "tools.xlsx"
-persistent_directory = "/home/storehouse/Documents/BorrowApp"  # Updated directory for persistent storage
-borrow_file = os.path.join(persistent_directory, "borrowed_equipment.xlsx")
+borrow_file_name = "borrowed_equipment.xlsx"
 
-# Ensure the persistent directory exists
-if not os.path.exists(persistent_directory):
-    os.makedirs(persistent_directory)
+# Fetch or create the borrow history file on Google Drive
+def get_borrow_file():
+    file_list = drive.ListFile({'q': f"title='{borrow_file_name}'"}).GetList()
+    if file_list:
+        file_id = file_list[0]['id']
+        file = drive.CreateFile({'id': file_id})
+        file.GetContentFile(borrow_file_name)
+    else:
+        file = drive.CreateFile({'title': borrow_file_name})
+        file.Upload()
+    return file
+
+borrow_file = get_borrow_file()
 
 # Load labs
 @st.cache_data
@@ -207,12 +223,12 @@ def borrow_screen():
                     item['תאריך השאלה'] = current_time
                 borrow_df = pd.DataFrame(st.session_state['borrow_session'])
                 try:
-                    if not os.path.exists(persistent_directory):
-                        os.makedirs(persistent_directory)
-                    if os.path.exists(borrow_file):
-                        existing_borrows = pd.read_excel(borrow_file)
+                    if os.path.exists(borrow_file_name):
+                        existing_borrows = pd.read_excel(borrow_file_name)
                         borrow_df = pd.concat([existing_borrows, borrow_df])
-                    borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
+                    borrow_df.to_excel(borrow_file_name, index=False, engine='openpyxl')
+                    borrow_file.SetContentFile(borrow_file_name)
+                    borrow_file.Upload()
                     st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
                     st.session_state['borrow_session'] = []
                     st.session_state['screen'] = 'main'
@@ -257,7 +273,7 @@ def return_screen():
     st.markdown('<h2 class="center">Return Tools</h2>', unsafe_allow_html=True)
     
     try:
-        borrow_df = pd.read_excel(borrow_file)
+        borrow_df = pd.read_excel(borrow_file_name)
         user_borrows = borrow_df[(borrow_df['שם משתמש'] == st.session_state['user']) & 
                                  (borrow_df['שם מעבדה'] == st.session_state['selected_lab'])]
         if not user_borrows.empty:
@@ -303,7 +319,9 @@ def return_screen():
                            (borrow_df['תאריך השאלה'] == return_item['תאריך השאלה'])
                     borrow_df.loc[mask, 'כמות'] -= return_item['כמות להחזיר']
                 borrow_df = borrow_df[borrow_df['כמות'] > 0]
-                borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
+                borrow_df.to_excel(borrow_file_name, index=False, engine='openpyxl')
+                borrow_file.SetContentFile(borrow_file_name)
+                borrow_file.Upload()
                 st.success("כל ההחזרות בוצעו בהצלחה - All returns completed successfully")
                 st.session_state['return_session'] = []
                 st.session_state['screen'] = 'main'
@@ -335,7 +353,7 @@ def history_screen():
     st.markdown('<h2 class="center">היסטוריית השאלות</h2>', unsafe_allow_html=True)
     st.markdown('<h2 class="center">Borrowing History</h2>', unsafe_allow_html=True)
     try:
-        borrow_df = pd.read_excel(borrow_file)
+        borrow_df = pd.read_excel(borrow_file_name)
         user_borrows = borrow_df[borrow_df['שם משתמש'] == st.session_state['user']]
         st.dataframe(user_borrows)
     except FileNotFoundError:
@@ -359,8 +377,7 @@ elif st.session_state['screen'] == 'history':
     history_screen()
 
 # Sidebar for navigation
-st.sidebar.markdown('<h2 class="center">ניווט - Navigation</h2>', unsafe_allow_html=True)
+st.sidebar.markdown('<h2 class="center">ניווט - Navigation</2>', unsafe_allow_html=True)
 if st.sidebar.button("דף ראשי - Main Page"):
     st.session_state['screen'] = 'main'
-if st.sidebar.button("Borrow History of the User"):
-    st.session_state['screen'] = 'history'
+if st.sidebar.button("Borrow
