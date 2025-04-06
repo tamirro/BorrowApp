@@ -3,11 +3,12 @@ import pandas as pd
 import qrcode
 from datetime import datetime
 import os
+import tempfile
 
 # File paths
 labs_file = "labs.xlsx"
 tools_file = "tools.xlsx"
-borrow_file = "borrowed_equipment.xlsx"
+borrow_file = os.path.join(tempfile.gettempdir(), "borrowed_equipment.xlsx")
 
 # Load labs
 @st.cache_data
@@ -24,7 +25,6 @@ def load_labs():
 
 # Main screen
 def main_screen():
-    # RTL and centering CSS
     st.markdown("""
         <style>
         .rtl {
@@ -39,11 +39,11 @@ def main_screen():
         .stTextInput, .stNumberInput, .stSelectbox {
             direction: rtl;
             text-align: right;
-            max-width: 400px; /* Limit width for better centering */
+            max-width: 400px;
             margin: 0 auto;
         }
         .stTextInput input, .stNumberInput input {
-            text-align: center; /* Center existing text */
+            text-align: center;
         }
         .stButton>button {
             height: 38px;
@@ -53,7 +53,6 @@ def main_screen():
         </style>
     """, unsafe_allow_html=True)
 
-    # Logo
     if os.path.exists("mdde.jpg"):
         st.image("mdde.jpg", width=300, use_column_width="auto")
     else:
@@ -61,9 +60,14 @@ def main_screen():
 
     st.markdown('<h1 class="rtl">מערכת השאלת ציוד - Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
-    # QR Code for login
     qr = qrcode.QRCode()
-    qr.add_data(st.secrets.get("app_url", "http://localhost:8501"))
+    app_url = "http://localhost:8501"  # Default URL
+    try:
+        if "app_url" in st.secrets:
+            app_url = st.secrets["app_url"]
+    except Exception:
+        pass  # Fallback to default if secrets fail
+    qr.add_data(app_url)
     qr.make()
     qr_img = qr.make_image(fill='black', back_color='white')
     qr_img.save("qr_login.png")
@@ -97,15 +101,14 @@ def main_screen():
 
 # Borrow screen
 def borrow_screen():
-    # Logo
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=600, use_column_width="auto")
+        st.image("mdde.jpg", width=300, use_column_width="auto")
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
     st.markdown('<h2 class="rtl">השאלת כלים - Borrow Tools</h2>', unsafe_allow_html=True)
+    st.warning("שים לב: נתוני ההשאלות נשמרים זמנית בלבד ב-Streamlit Cloud - Note: Borrowing data is only stored temporarily on Streamlit Cloud")
     
-    # Input area
     with st.container():
         st.markdown('<div class="rtl">שם הכלי - Tool Name:</div>', unsafe_allow_html=True)
         tool_name = st.text_input("", key="new_tool")
@@ -127,10 +130,8 @@ def borrow_screen():
             else:
                 st.error("יש לרשום שם כלי - Please enter a tool name")
 
-    # Divider
     st.divider()
 
-    # Borrow session area
     if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
         st.markdown('<div class="rtl">כלים שנבחרו ב-Session זה - Tools Selected in This Session:</div>', unsafe_allow_html=True)
         edited_session = []
@@ -161,11 +162,12 @@ def borrow_screen():
                     item['תאריך השאלה'] = current_time
                 borrow_df = pd.DataFrame(st.session_state['borrow_session'])
                 try:
-                    existing_borrows = pd.read_excel(borrow_file)
-                    borrow_df = pd.concat([existing_borrows, borrow_df])
+                    if os.path.exists(borrow_file):
+                        existing_borrows = pd.read_excel(borrow_file)
+                        borrow_df = pd.concat([existing_borrows, borrow_df])
                 except FileNotFoundError:
                     pass
-                borrow_df.to_excel(borrow_file, index=False)
+                borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
                 st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
                 st.session_state['borrow_session'] = []
                 st.session_state['screen'] = 'main'
@@ -177,7 +179,6 @@ def borrow_screen():
 
 # Return screen
 def return_screen():
-    # Logo
     if os.path.exists("mdde.jpg"):
         st.image("mdde.jpg", width=300, use_column_width="auto")
     else:
@@ -229,7 +230,7 @@ def return_screen():
                            (borrow_df['תאריך השאלה'] == return_item['תאריך השאלה'])
                     borrow_df.loc[mask, 'כמות'] -= return_item['כמות להחזיר']
                 borrow_df = borrow_df[borrow_df['כמות'] > 0]
-                borrow_df.to_excel(borrow_file, index=False)
+                borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
                 st.success("כל ההחזרות בוצעו בהצלחה - All returns completed successfully")
                 st.session_state['return_session'] = []
                 st.session_state['screen'] = 'main'
@@ -245,7 +246,6 @@ def return_screen():
 
 # History screen
 def history_screen():
-    # Logo
     if os.path.exists("mdde.jpg"):
         st.image("mdde.jpg", width=300, use_column_width="auto")
     else:
