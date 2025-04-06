@@ -347,9 +347,33 @@ def history_screen():
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
     st.markdown('<h2 class="center">היסטוריית השאלות</h2>', unsafe_allow_html=True)
-    st.markdown('<h2 class="center">Borrowing History</2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">Borrowing History</h2>', unsafe_allow_html=True)
     try:
         borrow_df = pd.read_excel(borrow_file)
         st.dataframe(borrow_df)
     except FileNotFoundError:
-       
+        st.markdown('<div class="center">אין נתונים זמינים - No data available</div>', unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"שגיאה בטעינת ההיסטוריה - Error loading history: {str(e)}")
+    if st.button("חזור - Back"):
+        st.session_state['screen'] = 'main'
+
+# Main app logic
+if 'screen' not in st.session_state:
+    st.session_state['screen'] = 'main'
+
+if st.session_state['screen'] == 'main':
+    main_screen()
+elif st.session_state['screen'] == 'borrow':
+    borrow_screen()
+elif st.session_state['screen'] == 'return':
+    return_screen()
+elif st.session_state['screen'] == 'history':
+    history_screen()
+
+# Sidebar for navigation
+st.sidebar.markdown('<h2 class="center">ניווט - Navigation</h2>', unsafe_allow_html=True)
+if st.sidebar.button("דף ראשי - Main Page"):
+    st.session_state['screen'] = 'main'
+if st.sidebar.button("היסטוריה - History"):
+    st.session_state['screen'] = 'history'
