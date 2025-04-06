@@ -16,10 +16,10 @@ def load_labs():
         labs_df = pd.read_excel(labs_file)
         return labs_df['שם מעבדה'].tolist()
     except FileNotFoundError:
-        st.error("קובץ המעבדות לא נמצא")
+        st.error("קובץ המעבדות לא נמצא - Lab file not found")
         return []
     except Exception as e:
-        st.error(f"שגיאה בטעינת המעבדות: {str(e)}")
+        st.error(f"שגיאה בטעינת המעבדות: {str(e)} - Error loading labs: {str(e)}")
         return []
 
 # Main screen
@@ -43,7 +43,7 @@ def main_screen():
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<h1 class="rtl">מערכת השאלת ציוד</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="rtl">מערכת השאלת ציוד - Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
     # QR Code for login
     qr = qrcode.QRCode()
@@ -51,44 +51,44 @@ def main_screen():
     qr.make()
     qr_img = qr.make_image(fill='black', back_color='white')
     qr_img.save("qr_login.png")
-    st.image("qr_login.png", caption="סרוק כדי לגשת")
+    st.image("qr_login.png", caption="סרוק כדי לגשת - Scan to Access")
 
-    st.markdown('<div class="rtl">שם משתמש:</div>', unsafe_allow_html=True)
+    st.markdown('<div class="rtl">שם משתמש - Username:</div>', unsafe_allow_html=True)
     username = st.text_input("", key="username")
     labs = load_labs()
-    st.markdown('<div class="rtl">בחר מעבדה:</div>', unsafe_allow_html=True)
+    st.markdown('<div class="rtl">בחר מעבדה - Select Lab:</div>', unsafe_allow_html=True)
     lab = st.selectbox("", labs, key="lab")
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("השאל כלים"):
+        if st.button("השאל כלים - Borrow Tools"):
             if username and lab:
                 st.session_state['username'] = username
                 st.session_state['lab'] = lab
                 st.session_state['screen'] = 'borrow'
             else:
-                st.error("יש להזין שם משתמש ומעבדה")
+                st.error("יש להזין שם משתמש ומעבדה - Please enter username and lab")
     with col2:
-        if st.button("החזר כלים"):
+        if st.button("החזר כלים - Return Tools"):
             if username and lab:
                 st.session_state['username'] = username
                 st.session_state['lab'] = lab
                 st.session_state['screen'] = 'return'
             else:
-                st.error("יש להזין שם משתמש ומעבדה")
+                st.error("יש להזין שם משתמש ומעבדה - Please enter username and lab")
 
 # Borrow screen
 def borrow_screen():
-    st.markdown('<h2 class="rtl">השאלת כלים</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="rtl">השאלת כלים - Borrow Tools</h2>', unsafe_allow_html=True)
     
     # Input area
     with st.container():
-        st.markdown('<div class="rtl">שם הכלי:</div>', unsafe_allow_html=True)
+        st.markdown('<div class="rtl">שם הכלי - Tool Name:</div>', unsafe_allow_html=True)
         tool_name = st.text_input("", key="new_tool")
-        st.markdown('<div class="rtl">כמות להשאיל:</div>', unsafe_allow_html=True)
+        st.markdown('<div class="rtl">כמות להשאיל - Quantity to Borrow:</div>', unsafe_allow_html=True)
         quantity = st.number_input("", min_value=1, step=1, key="new_qty")
         
-        if st.button("הוסף לרשימה"):
+        if st.button("הוסף לרשימה - Add to List"):
             if tool_name:
                 if 'borrow_session' not in st.session_state:
                     st.session_state['borrow_session'] = []
@@ -99,16 +99,16 @@ def borrow_screen():
                     'כמות': quantity,
                     'תאריך השאלה': None  # Will be set on confirmation
                 })
-                st.success(f"נוסף: {tool_name} - כמות: {quantity}")
+                st.success(f"נוסף - Added: {tool_name} - כמות - Quantity: {quantity}")
             else:
-                st.error("יש לרשום שם כלי")
+                st.error("יש לרשום שם כלי - Please enter a tool name")
 
     # Divider
     st.divider()
 
     # Borrow session area
     if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
-        st.markdown('<div class="rtl">כלים שנבחרו ב-Session זה:</div>', unsafe_allow_html=True)
+        st.markdown('<div class="rtl">כלים שנבחרו ב-Session זה - Tools Selected in This Session:</div>', unsafe_allow_html=True)
         edited_session = []
         for i, item in enumerate(st.session_state['borrow_session']):
             col1, col2, col3 = st.columns([3, 1, 1])
@@ -117,7 +117,7 @@ def borrow_screen():
             with col2:
                 new_quantity = st.number_input("", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}")
             with col3:
-                if st.button("מחק", key=f"del_{i}"):
+                if st.button("מחק - Delete", key=f"del_{i}"):
                     continue
             edited_session.append({
                 'שם משתמש': item['שם משתמש'],
@@ -130,7 +130,7 @@ def borrow_screen():
 
     col_confirm, col_back = st.columns(2)
     with col_confirm:
-        if st.button("אשר את כל ההשאלות"):
+        if st.button("אשר את כל ההשאלות - Confirm All Borrowings"):
             if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
                 current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 for item in st.session_state['borrow_session']:
@@ -142,33 +142,33 @@ def borrow_screen():
                 except FileNotFoundError:
                     pass
                 borrow_df.to_excel(borrow_file, index=False)
-                st.success("כל ההשאלות בוצעו בהצלחה")
+                st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
                 st.session_state['borrow_session'] = []
                 st.session_state['screen'] = 'main'
             else:
-                st.error("לא נבחרו כלים להשאלה")
+                st.error("לא נבחרו כלים להשאלה - No tools selected for borrowing")
     with col_back:
-        if st.button("חזור"):
+        if st.button("חזור - Back"):
             st.session_state['screen'] = 'main'
 
 # Return screen
 def return_screen():
-    st.markdown('<h2 class="rtl">החזרת כלים</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="rtl">החזרת כלים - Return Tools</h2>', unsafe_allow_html=True)
     
     try:
         borrow_df = pd.read_excel(borrow_file)
         user_borrows = borrow_df[(borrow_df['שם משתמש'] == st.session_state['username']) & 
                                  (borrow_df['שם מעבדה'] == st.session_state['lab'])]
         if not user_borrows.empty:
-            st.markdown('<div class="rtl">כלים שהושאלו בעבר:</div>', unsafe_allow_html=True)
+            st.markdown('<div class="rtl">כלים שהושאלו בעבר - Previously Borrowed Tools:</div>', unsafe_allow_html=True)
             st.dataframe(user_borrows)
             tool_options = user_borrows.apply(lambda row: f"{row['שם הכלי']} (כמות: {row['כמות']}, תאריך: {row['תאריך השאלה']})", axis=1).tolist()
-            st.markdown('<div class="rtl">בחר כלי להחזרה:</div>', unsafe_allow_html=True)
+            st.markdown('<div class="rtl">בחר כלי להחזרה - Select Tool to Return:</div>', unsafe_allow_html=True)
             selected_tool = st.selectbox("", tool_options)
-            st.markdown('<div class="rtl">כמות להחזיר:</div>', unsafe_allow_html=True)
+            st.markdown('<div class="rtl">כמות להחזיר - Quantity to Return:</div>', unsafe_allow_html=True)
             quantity_to_return = st.number_input("", min_value=1, step=1)
             
-            if st.button("הוסף להחזרה"):
+            if st.button("הוסף להחזרה - Add to Return"):
                 if quantity_to_return <= int(selected_tool.split("כמות: ")[1].split(",")[0]):
                     tool_name = selected_tool.split(" (")[0]
                     if 'return_session' not in st.session_state:
@@ -180,16 +180,16 @@ def return_screen():
                         'כמות להחזיר': quantity_to_return,
                         'תאריך השאלה': selected_tool.split("תאריך: ")[1].rstrip(")")
                     })
-                    st.success(f"נוסף להחזרה: {tool_name} - כמות: {quantity_to_return}")
+                    st.success(f"נוסף להחזרה - Added to Return: {tool_name} - כמות - Quantity: {quantity_to_return}")
                 else:
-                    st.error("כמות ההחזרה גדולה מהכמות המושאלת")
+                    st.error("כמות ההחזרה גדולה מהכמות המושאלת - Return quantity exceeds borrowed quantity")
 
             if 'return_session' in st.session_state and st.session_state['return_session']:
-                st.markdown('<div class="rtl">כלים להחזרה ב-Session זה:</div>', unsafe_allow_html=True)
+                st.markdown('<div class="rtl">כלים להחזרה ב-Session זה - Tools to Return in This Session:</div>', unsafe_allow_html=True)
                 for item in st.session_state['return_session']:
-                    st.markdown(f'<div class="rtl">{item["שם הכלי"]} - כמות: {item["כמות להחזיר"]}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="rtl">{item["שם הכלי"]} - כמות - Quantity: {item["כמות להחזיר"]}</div>', unsafe_allow_html=True)
 
-            if st.button("אשר את כל ההחזרות"):
+            if st.button("אשר את כל ההחזרות - Confirm All Returns"):
                 for return_item in st.session_state['return_session']:
                     mask = (borrow_df['שם משתמש'] == return_item['שם משתמש']) & \
                            (borrow_df['שם מעבדה'] == return_item['שם מעבדה']) & \
@@ -198,30 +198,30 @@ def return_screen():
                     borrow_df.loc[mask, 'כמות'] -= return_item['כמות להחזיר']
                 borrow_df = borrow_df[borrow_df['כמות'] > 0]
                 borrow_df.to_excel(borrow_file, index=False)
-                st.success("כל ההחזרות בוצעו בהצלחה")
+                st.success("כל ההחזרות בוצעו בהצלחה - All returns completed successfully")
                 st.session_state['return_session'] = []
                 st.session_state['screen'] = 'main'
         else:
-            st.markdown('<div class="rtl">אין השאלות קודמות</div>', unsafe_allow_html=True)
+            st.markdown('<div class="rtl">אין השאלות קודמות - No previous borrowings</div>', unsafe_allow_html=True)
     except FileNotFoundError:
-        st.markdown('<div class="rtl">אין השאלות קודמות</div>', unsafe_allow_html=True)
+        st.markdown('<div class="rtl">אין השאלות קודמות - No previous borrowings</div>', unsafe_allow_html=True)
     except Exception as e:
-        st.error(f"שגיאה בטעינת ההשאלות: {str(e)}")
+        st.error(f"שגיאה בטעינת ההשאלות - Error loading borrowings: {str(e)}")
 
-    if st.button("חזור"):
+    if st.button("חזור - Back"):
         st.session_state['screen'] = 'main'
 
 # History screen
 def history_screen():
-    st.markdown('<h2 class="rtl">היסטוריית השאלות</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="rtl">היסטוריית השאלות - Borrowing History</h2>', unsafe_allow_html=True)
     try:
         borrow_df = pd.read_excel(borrow_file)
         st.dataframe(borrow_df)
     except FileNotFoundError:
-        st.markdown('<div class="rtl">אין נתונים זמינים</div>', unsafe_allow_html=True)
+        st.markdown('<div class="rtl">אין נתונים זמינים - No data available</div>', unsafe_allow_html=True)
     except Exception as e:
-        st.error(f"שגיאה בטעינת ההיסטוריה: {str(e)}")
-    if st.button("חזור"):
+        st.error(f"שגיאה בטעינת ההיסטוריה - Error loading history: {str(e)}")
+    if st.button("חזור - Back"):
         st.session_state['screen'] = 'main'
 
 # Main app logic
@@ -238,8 +238,8 @@ elif st.session_state['screen'] == 'history':
     history_screen()
 
 # Sidebar for navigation
-st.sidebar.markdown('<h2 class="rtl">ניווט</h2>', unsafe_allow_html=True)
-if st.sidebar.button("דף ראשי"):
+st.sidebar.markdown('<h2 class="rtl">ניווט - Navigation</h2>', unsafe_allow_html=True)
+if st.sidebar.button("דף ראשי - Main Page"):
     st.session_state['screen'] = 'main'
-if st.sidebar.button("היסטוריה"):
+if st.sidebar.button("היסטוריה - History"):
     st.session_state['screen'] = 'history'
