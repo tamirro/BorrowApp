@@ -58,7 +58,8 @@ def main_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h1 class="rtl">מערכת השאלת ציוד - Equipment Borrowing System</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="rtl">מערכת השאלת ציוד</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="rtl">Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
     qr = qrcode.QRCode()
     app_url = "http://localhost:8501"
@@ -71,7 +72,7 @@ def main_screen():
     qr.make()
     qr_img = qr.make_image(fill='black', back_color='white')
     qr_img.save("qr_login.png")
-    st.image("qr_login.png", caption="סרוק כדי לגשת - Scan to Access", width=200, use_container_width=True)
+    st.image("qr_login.png", caption="סרוק כדי לגשת - Scan to Access", width=100, use_container_width=True)
 
     st.markdown('<div class="rtl">שם משתמש - Username:</div>', unsafe_allow_html=True)
     with st.container():
@@ -106,8 +107,8 @@ def borrow_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="rtl">השאלת כלים - Borrow Tools</h2>', unsafe_allow_html=True)
-    st.warning("שים לב: נתוני ההשאלות נשמרים זמנית בלבד ב-Streamlit Cloud - Note: Borrowing data is only stored temporarily on Streamlit Cloud")
+    st.markdown('<h2 class="rtl">השאלת כלים</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="rtl">Borrow Tools</h2>', unsafe_allow_html=True)
     
     with st.container():
         st.markdown('<div class="rtl">שם הכלי - Tool Name:</div>', unsafe_allow_html=True)
@@ -129,27 +130,27 @@ def borrow_screen():
             else:
                 st.error("יש לרשום שם כלי - Please enter a tool name")
 
-    st.divider()
-
+    # Move cart to sidebar if items exist
     if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
-        st.markdown('<div class="rtl">כלים שנבחרו ב-Session זה - Tools Selected in This Session:</div>', unsafe_allow_html=True)
-        edited_session = []
-        for i, item in enumerate(st.session_state['borrow_session']):
-            col1, col2, col3 = st.columns([3, 1, 1])
-            with col1:
-                new_tool_name = st.text_input("", value=item['שם הכלי'], key=f"tool_{i}_input", label_visibility="collapsed")
-            with col2:
-                new_quantity = st.number_input("", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}_input", label_visibility="collapsed")
-            with col3:
-                if st.button("מחק - Delete", key=f"del_{i}"):
-                    continue
-            edited_session.append({
-                'שם משתמש': item['שם משתמש'],
-                'שם מעבדה': item['שם מעבדה'],
-                'שם הכלי': new_tool_name,
-                'כמות': new_quantity
-            })
-        st.session_state['borrow_session'] = edited_session
+        with st.sidebar:
+            st.markdown('<div class="rtl">כלים שנבחרו - Tools Selected</div>', unsafe_allow_html=True)
+            edited_session = []
+            for i, item in enumerate(st.session_state['borrow_session']):
+                col1, col2, col3 = st.columns([3, 1, 1])
+                with col1:
+                    new_tool_name = st.text_input("", value=item['שם הכלי'], key=f"tool_{i}_input", label_visibility="collapsed")
+                with col2:
+                    new_quantity = st.number_input("", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}_input", label_visibility="collapsed")
+                with col3:
+                    if st.button("מחק - Delete", key=f"del_{i}"):
+                        continue
+                edited_session.append({
+                    'שם משתמש': item['שם משתמש'],
+                    'שם מעבדה': item['שם מעבדה'],
+                    'שם הכלי': new_tool_name,
+                    'כמות': new_quantity
+                })
+            st.session_state['borrow_session'] = edited_session
 
     col_confirm, col_back = st.columns(2)
     with col_confirm:
@@ -182,7 +183,8 @@ def return_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="rtl">החזרת כלים - Return Tools</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="rtl">החזרת כלים</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="rtl">Return Tools</h2>', unsafe_allow_html=True)
     
     try:
         borrow_df = pd.read_excel(borrow_file)
@@ -249,7 +251,8 @@ def history_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="rtl">היסטוריית השאלות - Borrowing History</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="rtl">היסטוריית השאלות</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="rtl">Borrowing History</h2>', unsafe_allow_html=True)
     try:
         borrow_df = pd.read_excel(borrow_file)
         st.dataframe(borrow_df)
