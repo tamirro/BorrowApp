@@ -1,0 +1,108 @@
+
+[     UTC     ] Logs for toolsborrowapp.streamlit.app/
+────────────────────────────────────────────────────────────────────────────────────────
+[11:45:58] 🚀 Starting up repository: 'borrowapp', branch: 'main', main module: 'app.py'
+[11:45:58] 🐙 Cloning repository...
+[11:45:58] 🐙 Cloning into '/mount/src/borrowapp'...
+
+[11:45:58] 🐙 Cloned repository!
+[11:45:58] 🐙 Pulling code changes from Github...
+[11:45:59] 📦 Processing dependencies...
+
+──────────────────────────────────────── uv ───────────────────────────────────────────
+
+Using uv pip install.
+Using Python 3.12.9 environment at /home/adminuser/venv
+Resolved 40 packages in 433ms
+Prepared 40 packages in 1.67s
+Installed 40 packages in 72ms
+ + altair==5.5.0
+ + attrs==25.3.0
+ + blinker==1.9.0
+ + cachetools==5.5.2
+ + certifi==2025.1.31
+ + charset-normalizer==3.4.1
+ + click==8.1.8
+ + et-xmlfile==2.0.0
+ + gitdb==4.0.12
+ + gitpython==3.1.44
+ + idna==3.10
+ + jinja2==3.1.6
+ + jsonschema==4.23.0[2025-04-06 11:46:01.893492] 
+ + jsonschema-specifications==2024.10.1
+ + markupsafe==3.0.2
+ + narwhals==1.33.0
+ + numpy==2.2.4
+ + openpyxl==3.1.5
+ + packaging==24.2
+ + pandas==2.2.3
+ + pillow==11.1.0[2025-04-06 11:46:01.893680] 
+ + protobuf==5.29.4
+ + pyarrow==19.0.1
+ + pydeck==0.9.1
+ + python-dateutil==2.9.0.post0
+ + pytz==2025.2
+ + qrcode==8.1
+ + referencing==0.36.2
+ + requests==2.32.3[2025-04-06 11:46:01.893807] 
+ + rpds-py==0.24.0
+ + six==1.17.0
+ + smmap==5.0.2
+ + streamlit==1.44.1
+ + tenacity==[2025-04-06 11:46:01.893945] 9.1.2
+ + toml==0.10.2
+ + tornado==6.4.2
+ + typing-extensions==4.13.1
+ + tzdata==2025.2
+ + urllib3==2.3.0
+ + watchdog==6.0.0
+Checking if Streamlit is installed
+Found Streamlit version 1.44.1 in the environment
+Installing rich for an improved exception logging
+Using uv pip install.
+Using Python 3.12.9 environment at /home/adminuser/venv
+Resolved 4 packages in 168ms
+Prepared 4 packages in 119ms
+Installed 4 packages in 12ms
+ + markdown-it-py==3.0.0
+ [2025-04-06 11:46:03.578616] + mdurl==0.1.2
+ + pygments==2.19.1
+ + rich==14.0.0
+
+────────────────────────────────────────────────────────────────────────────────────────
+
+[11:46:03] 🐍 Python dependencies were installed from /mount/src/borrowapp/requirements.txt using uv.
+Check if streamlit is installed
+Streamlit is already installed
+[11:46:05] 📦 Processed dependencies!
+
+
+
+2025-04-06 11:47:40.144 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:40.159 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:45.684 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:45.685 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:49.353 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:49.354 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:49.464 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:49.465 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:49.916 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:49.917 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:57.705 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:57.707 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:57.796 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:57.798 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:57.800 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:47:57.801 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:00.104 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:00.105 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:00.107 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:00.108 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:02.935 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:02.936 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:08.198 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:08.199 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:08.297 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:08.298 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:09.293 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
+2025-04-06 11:48:09.295 `label` got an empty value. This is discouraged for accessibility reasons and may be disallowed in the future by raising an exception. Please provide a non-empty label and hide it with label_visibility if needed.
