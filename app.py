@@ -8,7 +8,12 @@ import tempfile
 # File paths
 labs_file = "labs.xlsx"
 tools_file = "tools.xlsx"
-borrow_file = os.path.join(tempfile.gettempdir(), "borrowed_equipment.xlsx")
+persistent_directory = "data"  # Define a directory for persistent storage
+borrow_file = os.path.join(persistent_directory, "borrowed_equipment.xlsx")
+
+# Ensure the persistent directory exists
+if not os.path.exists(persistent_directory):
+    os.makedirs(persistent_directory)
 
 # Load labs
 @st.cache_data
