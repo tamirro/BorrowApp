@@ -345,11 +345,12 @@ def history_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="center">היסטוריית השאלות</2>', unsafe_allow_html=True)
-    st.markdown('<h2 class="center">Borrowing History</2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">היסטוריית השאלות</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">Borrowing History</h2>', unsafe_allow_html=True)
     try:
         borrow_df = pd.read_excel(borrow_file)
-        st.dataframe(borrow_df)
+        user_borrows = borrow_df[borrow_df['שם משתמש'] == st.session_state['user']]
+        st.dataframe(user_borrows)
     except FileNotFoundError:
         st.markdown('<div class="center">אין נתונים זמינים - No data available</div>', unsafe_allow_html=True)
     except Exception as e:
@@ -371,7 +372,7 @@ elif st.session_state['screen'] == 'history':
     history_screen()
 
 # Sidebar for navigation
-st.sidebar.markdown('<h2 class="center">ניווט - Navigation</2>', unsafe_allow_html=True)
+st.sidebar.markdown('<h2 class="center">ניווט - Navigation</h2>', unsafe_allow_html=True)
 if st.sidebar.button("דף ראשי - Main Page"):
     st.session_state['screen'] = 'main'
 if st.sidebar.button("Borrow History of the User"):
