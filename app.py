@@ -8,12 +8,8 @@ from PIL import Image
 # File paths
 labs_file = "labs.xlsx"
 tools_file = "tools.xlsx"
-persistent_directory = "/home/storehouse/Documents"  # Updated directory for persistent storage
+persistent_directory = "/home/storehouse/Documents/BorrowApp"  # Updated directory for persistent storage
 borrow_file = os.path.join(persistent_directory, "borrowed_equipment.xlsx")
-
-# Ensure the persistent directory exists
-if not os.path.exists(persistent_directory):
-    os.makedirs(persistent_directory)
 
 # Load labs
 @st.cache_data
@@ -87,21 +83,6 @@ def main_screen():
     st.markdown('<h1 class="center">מערכת השאלת ציוד</h1>', unsafe_allow_html=True)
     st.markdown('<h1 class="center">Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
-    # Commented out QR code generation and display
-    # qr = qrcode.QRCode(box_size=10, border=1)  # Adjusting box size and border for better quality
-    # app_url = "http://localhost:8501"
-    # try:
-    #     if "app_url" in st.secrets:
-    #         app_url = st.secrets["app_url"]
-    # except Exception:
-    #     pass
-    # qr.add_data(app_url)
-    # qr.make()
-    # qr_img = qr.make_image(fill='black', back_color='white').convert('RGB')
-    # qr_img = qr_img.resize((qr_img.size[0] // 4, qr_img.size[1] // 4), Image.ANTIALIAS)  # Reduce size by 1/4
-    # qr_img.save("qr_login.png")
-    # st.image("qr_login.png", caption="סרוק כדי לגשת לאפליקציה מהנייד - Scan to Access App from Cellphone", width=125, use_container_width=True)
-
     st.markdown('<div class="center">שם משתמש - Username:</div>', unsafe_allow_html=True)
     with st.container():
         username = st.text_input("", key="username_input", label_visibility="collapsed")
