@@ -88,19 +88,20 @@ def main_screen():
     st.markdown('<h1 class="center">מערכת השאלת ציוד</h1>', unsafe_allow_html=True)
     st.markdown('<h1 class="center">Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
-    qr = qrcode.QRCode(box_size=10, border=1)  # Adjusting box size and border for better quality
-    app_url = "http://localhost:8501"
-    try:
-        if "app_url" in st.secrets:
-            app_url = st.secrets["app_url"]
-    except Exception:
-        pass
-    qr.add_data(app_url)
-    qr.make()
-    qr_img = qr.make_image(fill='black', back_color='white').convert('RGB')
-    qr_img = qr_img.resize((qr_img.size[0] // 4, qr_img.size[1] // 4), Image.ANTIALIAS)  # Reduce size by 1/4
-    qr_img.save("qr_login.png")
-    st.image("qr_login.png", caption="סרוק כדי לגשת לאפליקציה מהנייד - Scan to Access App from Cellphone", width=125, use_container_width=True)
+    # Commented out QR code generation and display
+    # qr = qrcode.QRCode(box_size=10, border=1)  # Adjusting box size and border for better quality
+    # app_url = "http://localhost:8501"
+    # try:
+    #     if "app_url" in st.secrets:
+    #         app_url = st.secrets["app_url"]
+    # except Exception:
+    #     pass
+    # qr.add_data(app_url)
+    # qr.make()
+    # qr_img = qr.make_image(fill='black', back_color='white').convert('RGB')
+    # qr_img = qr_img.resize((qr_img.size[0] // 4, qr_img.size[1] // 4), Image.ANTIALIAS)  # Reduce size by 1/4
+    # qr_img.save("qr_login.png")
+    # st.image("qr_login.png", caption="סרוק כדי לגשת לאפליקציה מהנייד - Scan to Access App from Cellphone", width=125, use_container_width=True)
 
     st.markdown('<div class="center">שם משתמש - Username:</div>', unsafe_allow_html=True)
     with st.container():
@@ -322,8 +323,8 @@ def history_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="center">היסטוריית השאלות</h2>', unsafe_allow_html=True)
-    st.markdown('<h2 class="center">Borrowing History</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">היסטוריית השאלות</2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">Borrowing History</2>', unsafe_allow_html=True)
     try:
         borrow_df = pd.read_excel(borrow_file)
         st.dataframe(borrow_df)
@@ -348,7 +349,7 @@ elif st.session_state['screen'] == 'history':
     history_screen()
 
 # Sidebar for navigation
-st.sidebar.markdown('<h2 class="center">ניווט - Navigation</h2>', unsafe_allow_html=True)
+st.sidebar.markdown('<h2 class="center">ניווט - Navigation</2>', unsafe_allow_html=True)
 if st.sidebar.button("דף ראשי - Main Page"):
     st.session_state['screen'] = 'main'
 if st.sidebar.button("היסטוריה - History"):
