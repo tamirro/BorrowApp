@@ -11,6 +11,10 @@ tools_file = "tools.xlsx"
 persistent_directory = "/home/storehouse/Documents/BorrowApp"  # Updated directory for persistent storage
 borrow_file = os.path.join(persistent_directory, "borrowed_equipment.xlsx")
 
+# Ensure the persistent directory exists
+if not os.path.exists(persistent_directory):
+    os.makedirs(persistent_directory)
+
 # Load labs
 @st.cache_data
 def load_labs():
@@ -203,15 +207,17 @@ def borrow_screen():
                     item['תאריך השאלה'] = current_time
                 borrow_df = pd.DataFrame(st.session_state['borrow_session'])
                 try:
+                    if not os.path.exists(persistent_directory):
+                        os.makedirs(persistent_directory)
                     if os.path.exists(borrow_file):
                         existing_borrows = pd.read_excel(borrow_file)
                         borrow_df = pd.concat([existing_borrows, borrow_df])
-                except FileNotFoundError:
-                    pass
-                borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
-                st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
-                st.session_state['borrow_session'] = []
-                st.session_state['screen'] = 'main'
+                    borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
+                    st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
+                    st.session_state['borrow_session'] = []
+                    st.session_state['screen'] = 'main'
+                except Exception as e:
+                    st.error(f"שגיאה בשמירת הנתונים - Error saving data: {str(e)}")
             else:
                 st.error("לא נבחרו כלים להשאלה - No tools selected for borrowing")
     with col_back:
