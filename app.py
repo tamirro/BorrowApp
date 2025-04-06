@@ -24,16 +24,26 @@ def load_labs():
 
 # Main screen
 def main_screen():
-    # RTL CSS for entire app
+    # RTL and centering CSS
     st.markdown("""
         <style>
         .rtl {
             direction: rtl;
             text-align: right;
         }
+        .center-inputs {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
         .stTextInput, .stNumberInput, .stSelectbox {
             direction: rtl;
             text-align: right;
+            max-width: 400px; /* Limit width for better centering */
+            margin: 0 auto;
+        }
+        .stTextInput input, .stNumberInput input {
+            text-align: center; /* Center existing text */
         }
         .stButton>button {
             height: 38px;
@@ -43,6 +53,12 @@ def main_screen():
         </style>
     """, unsafe_allow_html=True)
 
+    # Logo
+    if os.path.exists("mdde.jpg"):
+        st.image("mdde.jpg", width=300, use_column_width="auto")
+    else:
+        st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
+
     st.markdown('<h1 class="rtl">מערכת השאלת ציוד - Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
     # QR Code for login
@@ -51,13 +67,15 @@ def main_screen():
     qr.make()
     qr_img = qr.make_image(fill='black', back_color='white')
     qr_img.save("qr_login.png")
-    st.image("qr_login.png", caption="סרוק כדי לגשת - Scan to Access")
+    st.image("qr_login.png", caption="סרוק כדי לגשת - Scan to Access", width=200)
 
     st.markdown('<div class="rtl">שם משתמש - Username:</div>', unsafe_allow_html=True)
-    username = st.text_input("", key="username")
+    with st.container():
+        username = st.text_input("", key="username")
     labs = load_labs()
     st.markdown('<div class="rtl">בחר מעבדה - Select Lab:</div>', unsafe_allow_html=True)
-    lab = st.selectbox("", labs, key="lab")
+    with st.container():
+        lab = st.selectbox("", labs, key="lab")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -79,6 +97,12 @@ def main_screen():
 
 # Borrow screen
 def borrow_screen():
+    # Logo
+    if os.path.exists("mdde.jpg"):
+        st.image("mdde.jpg", width=600, use_column_width="auto")
+    else:
+        st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
+
     st.markdown('<h2 class="rtl">השאלת כלים - Borrow Tools</h2>', unsafe_allow_html=True)
     
     # Input area
@@ -97,7 +121,7 @@ def borrow_screen():
                     'שם מעבדה': st.session_state['lab'],
                     'שם הכלי': tool_name,
                     'כמות': quantity,
-                    'תאריך השאלה': None  # Will be set on confirmation
+                    'תאריך השאלה': None
                 })
                 st.success(f"נוסף - Added: {tool_name} - כמות - Quantity: {quantity}")
             else:
@@ -153,6 +177,12 @@ def borrow_screen():
 
 # Return screen
 def return_screen():
+    # Logo
+    if os.path.exists("mdde.jpg"):
+        st.image("mdde.jpg", width=300, use_column_width="auto")
+    else:
+        st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
+
     st.markdown('<h2 class="rtl">החזרת כלים - Return Tools</h2>', unsafe_allow_html=True)
     
     try:
@@ -164,9 +194,11 @@ def return_screen():
             st.dataframe(user_borrows)
             tool_options = user_borrows.apply(lambda row: f"{row['שם הכלי']} (כמות: {row['כמות']}, תאריך: {row['תאריך השאלה']})", axis=1).tolist()
             st.markdown('<div class="rtl">בחר כלי להחזרה - Select Tool to Return:</div>', unsafe_allow_html=True)
-            selected_tool = st.selectbox("", tool_options)
+            with st.container():
+                selected_tool = st.selectbox("", tool_options)
             st.markdown('<div class="rtl">כמות להחזיר - Quantity to Return:</div>', unsafe_allow_html=True)
-            quantity_to_return = st.number_input("", min_value=1, step=1)
+            with st.container():
+                quantity_to_return = st.number_input("", min_value=1, step=1)
             
             if st.button("הוסף להחזרה - Add to Return"):
                 if quantity_to_return <= int(selected_tool.split("כמות: ")[1].split(",")[0]):
@@ -213,6 +245,12 @@ def return_screen():
 
 # History screen
 def history_screen():
+    # Logo
+    if os.path.exists("mdde.jpg"):
+        st.image("mdde.jpg", width=300, use_column_width="auto")
+    else:
+        st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
+
     st.markdown('<h2 class="rtl">היסטוריית השאלות - Borrowing History</h2>', unsafe_allow_html=True)
     try:
         borrow_df = pd.read_excel(borrow_file)
