@@ -3,13 +3,13 @@ import pandas as pd
 import qrcode
 from datetime import datetime
 import os
-import tempfile
+import subprocess
 from PIL import Image
 
 # File paths
 labs_file = "labs.xlsx"
 tools_file = "tools.xlsx"
-persistent_directory = "data"  # Define a directory for persistent storage
+persistent_directory = "/home/storehouse/Documents/BorrowApp/BorrowApp"  # Updated directory for persistent storage
 borrow_file = os.path.join(persistent_directory, "borrowed_equipment.xlsx")
 
 # Ensure the persistent directory exists
@@ -28,6 +28,17 @@ def load_labs():
     except Exception as e:
         st.error(f"שגיאה בטעינת המעבדות: {str(e)} - Error loading labs: {str(e)}")
         return []
+
+# Function to push changes to the repository
+def push_to_repo(file_path):
+    try:
+        repo_dir = os.path.dirname(file_path)
+        subprocess.run(["git", "add", file_path], cwd=repo_dir, check=True)
+        subprocess.run(["git", "commit", "-m", f"Update borrowed history {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"], cwd=repo_dir, check=True)
+        subprocess.run(["git", "push"], cwd=repo_dir, check=True)
+        st.success("Borrowed history file successfully pushed to the repository.")
+    except subprocess.CalledProcessError as e:
+        st.error(f"Failed to push changes to the repository: {str(e)}")
 
 # Main screen
 def main_screen():
@@ -135,6 +146,8 @@ def borrow_screen():
         <style>
         .stButton>button {
             margin-top: 10px; /* Add space between buttons */
+            margin-left: auto;
+            margin-right: auto;
         }
         .stTextInput, .stNumberInput, .stSelectbox {
             direction: rtl;
@@ -143,6 +156,9 @@ def borrow_screen():
             margin: 0 auto;
         }
         .stTextInput input, .stNumberInput input {
+            text-align: center;
+        }
+        .center-text {
             text-align: center;
         }
         </style>
@@ -157,9 +173,9 @@ def borrow_screen():
     st.markdown('<h2 class="center">Borrow Tools</h2>', unsafe_allow_html=True)
     
     with st.container():
-        st.markdown('<div class="center">שם הכלי - Tool Name:</div>', unsafe_allow_html=True)
+        st.markdown('<div class="center-text">שם הכלי - Tool Name:</div>', unsafe_allow_html=True)
         tool_name = st.text_input("", key="new_tool_input", label_visibility="collapsed")
-        st.markdown('<div class="center">כמות להשאיל - Quantity to Borrow:</div>', unsafe_allow_html=True)
+        st.markdown('<div class="center-text">כמות להשאיל - Quantity to Borrow:</div>', unsafe_allow_html=True)
         quantity = st.number_input("", min_value=1, step=1, key="new_qty_input", label_visibility="collapsed")
         
         if st.button("הוסף לרשימה - Add to List"):
@@ -213,6 +229,7 @@ def borrow_screen():
                 except FileNotFoundError:
                     pass
                 borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
+                push_to_repo(borrow_file)  # Push changes to the repository
                 st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
                 st.session_state['borrow_session'] = []
                 st.session_state['screen'] = 'main'
@@ -228,6 +245,8 @@ def return_screen():
         <style>
         .stButton>button {
             margin-top: 10px; /* Add space between buttons */
+            margin-left: auto;
+            margin-right: auto;
         }
         .stTextInput, .stNumberInput, .stSelectbox {
             direction: rtl;
@@ -236,6 +255,9 @@ def return_screen():
             margin: 0 auto;
         }
         .stTextInput input, .stNumberInput input {
+            text-align: center;
+        }
+        .center-text {
             text-align: center;
         }
         </style>
@@ -247,7 +269,7 @@ def return_screen():
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
     st.markdown('<h2 class="center">החזרת כלים</h2>', unsafe_allow_html=True)
-    st.markdown('<h2 class="center">Return Tools</2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">Return Tools</h2>', unsafe_allow_html=True)
     
     try:
         borrow_df = pd.read_excel(borrow_file)
@@ -257,11 +279,11 @@ def return_screen():
             st.markdown('<div class="center">כלים שהושאלו בעבר - Previously Borrowed Tools:</div>', unsafe_allow_html=True)
             st.dataframe(user_borrows)
             st.divider()
-            st.markdown('<div class="center">בחר כלי להחזרה - Select Tool to Return:</div>', unsafe_allow_html=True)
+            st.markdown('<div class="center-text">בחר כלי להחזרה - Select Tool to Return:</div>', unsafe_allow_html=True)
             with st.container():
                 tool_options = user_borrows.apply(lambda row: f"{row['שם הכלי']} (כמות: {row['כמות']}, תאריך: {row['תאריך השאלה']})", axis=1).tolist()
                 selected_tool = st.selectbox("", tool_options, key="return_tool_input", label_visibility="collapsed")
-            st.markdown('<div class="center">כמות להחזיר - Quantity to Return:</div>', unsafe_allow_html=True)
+            st.markdown('<div class="center-text">כמות להחזיר - Quantity to Return:</div>', unsafe_allow_html=True)
             with st.container():
                 quantity_to_return = st.number_input("", min_value=1, step=1, key="return_qty_input", label_visibility="collapsed")
             
@@ -282,9 +304,9 @@ def return_screen():
                     st.error("כמות ההחזרה גדולה מהכמות המושאלת - Return quantity exceeds borrowed quantity")
 
             if 'return_session' in st.session_state and st.session_state['return_session']:
-                st.markdown('<div class="center">כלים להחזרה ב-Session זה - Tools to Return in This Session:</div>', unsafe_allow_html=True)
+                st.markdown('<div class="center-text">כלים להחזרה ב-Session זה - Tools to Return in This Session:</div>', unsafe_allow_html=True)
                 for item in st.session_state['return_session']:
-                    st.markdown(f'<div class="center">{item["שם הכלי"]} - כמות - Quantity: {item["כמות להחזיר"]}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="center-text">{item["שם הכלי"]} - כמות - Quantity: {item["כמות להחזיר"]}</div>', unsafe_allow_html=True)
 
             if st.button("אשר את כל ההחזרות - Confirm All Returns"):
                 for return_item in st.session_state['return_session']:
@@ -295,6 +317,7 @@ def return_screen():
                     borrow_df.loc[mask, 'כמות'] -= return_item['כמות להחזיר']
                 borrow_df = borrow_df[borrow_df['כמות'] > 0]
                 borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
+                push_to_repo(borrow_file)  # Push changes to the repository
                 st.success("כל ההחזרות בוצעו בהצלחה - All returns completed successfully")
                 st.session_state['return_session'] = []
                 st.session_state['screen'] = 'main'
@@ -323,34 +346,10 @@ def history_screen():
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
-    st.markdown('<h2 class="center">היסטוריית השאלות</2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">היסטוריית השאלות</h2>', unsafe_allow_html=True)
     st.markdown('<h2 class="center">Borrowing History</2>', unsafe_allow_html=True)
     try:
         borrow_df = pd.read_excel(borrow_file)
         st.dataframe(borrow_df)
     except FileNotFoundError:
-        st.markdown('<div class="center">אין נתונים זמינים - No data available</div>', unsafe_allow_html=True)
-    except Exception as e:
-        st.error(f"שגיאה בטעינת ההיסטוריה - Error loading history: {str(e)}")
-    if st.button("חזור - Back"):
-        st.session_state['screen'] = 'main'
-
-# Main app logic
-if 'screen' not in st.session_state:
-    st.session_state['screen'] = 'main'
-
-if st.session_state['screen'] == 'main':
-    main_screen()
-elif st.session_state['screen'] == 'borrow':
-    borrow_screen()
-elif st.session_state['screen'] == 'return':
-    return_screen()
-elif st.session_state['screen'] == 'history':
-    history_screen()
-
-# Sidebar for navigation
-st.sidebar.markdown('<h2 class="center">ניווט - Navigation</2>', unsafe_allow_html=True)
-if st.sidebar.button("דף ראשי - Main Page"):
-    st.session_state['screen'] = 'main'
-if st.sidebar.button("היסטוריה - History"):
-    st.session_state['screen'] = 'history'
+       
