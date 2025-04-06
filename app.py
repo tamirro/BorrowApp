@@ -49,14 +49,20 @@ def main_screen():
             text-align: center;
         }
         .stButton>button {
-            height: 38px;
-            width: 100%;
+            height: 50px; /* Taller buttons */
+            width: 200px; /* Wider buttons */
             direction: rtl;
-            margin: 0 auto;
+            margin: 10px auto; /* Spacing and centering */
             display: block;
+            font-size: 16px; /* Larger text */
+            border-radius: 5px; /* Rounded corners */
+        }
+        .stButton>button:hover {
+            background-color: #e0e0e0; /* Hover effect */
+            cursor: pointer; /* Hand cursor */
         }
         .sidebar .stButton>button {
-            width: 60px; /* Wider delete button */
+            width: 60px; /* Wider delete button in sidebar */
         }
         </style>
     """, unsafe_allow_html=True)
@@ -90,9 +96,9 @@ def main_screen():
         labs = load_labs()
         lab = st.selectbox("", labs, key="lab_input", label_visibility="collapsed")
     
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1, 1], gap="medium")  # Adjusted columns with gap
     with col1:
-        if st.button("השאל כלים - Borrow Tools"):
+        if st.button("השאל כלים - Borrow Tools", key="borrow_btn"):
             if username and lab:
                 st.session_state['user'] = username
                 st.session_state['selected_lab'] = lab
@@ -100,7 +106,7 @@ def main_screen():
             else:
                 st.error("יש להזין שם משתמש ומעבדה - Please enter username and lab")
     with col2:
-        if st.button("החזר כלים - Return Tools"):
+        if st.button("החזר כלים - Return Tools", key="return_btn"):
             if username and lab:
                 st.session_state['user'] = username
                 st.session_state['selected_lab'] = lab
@@ -150,7 +156,7 @@ def borrow_screen():
                 with col2:
                     new_quantity = st.number_input("", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}_input", label_visibility="collapsed")
                 with col3:
-                    if st.button("🗑️", key=f"del_{i}"):  # Trash icon instead of "מחק"
+                    if st.button("🗑️", key=f"del_{i}"):
                         continue
                 edited_session.append({
                     'שם משתמש': item['שם משתמש'],
@@ -201,7 +207,7 @@ def return_screen():
         if not user_borrows.empty:
             st.markdown('<div class="center">כלים שהושאלו בעבר - Previously Borrowed Tools:</div>', unsafe_allow_html=True)
             st.dataframe(user_borrows)
-            st.divider()  # Separating line
+            st.divider()
             st.markdown('<div class="center">בחר כלי להחזרה - Select Tool to Return:</div>', unsafe_allow_html=True)
             with st.container():
                 tool_options = user_borrows.apply(lambda row: f"{row['שם הכלי']} (כמות: {row['כמות']}, תאריך: {row['תאריך השאלה']})", axis=1).tolist()
