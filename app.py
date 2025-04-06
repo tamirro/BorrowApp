@@ -73,7 +73,7 @@ def main_screen():
     """, unsafe_allow_html=True)
 
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=500, use_container_width=True)
+        st.image("mdde.jpg", width=250, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
@@ -122,8 +122,16 @@ def main_screen():
 
 # Borrow screen
 def borrow_screen():
+    st.markdown("""
+        <style>
+        .stButton>button {
+            margin-top: 10px; /* Add space between buttons */
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=500, use_container_width=True)
+        st.image("mdde.jpg", width=250, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
@@ -198,8 +206,16 @@ def borrow_screen():
 
 # Return screen
 def return_screen():
+    st.markdown("""
+        <style>
+        .stButton>button {
+            margin-top: 10px; /* Add space between buttons */
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=500, use_container_width=True)
+        st.image("mdde.jpg", width=250, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
@@ -267,8 +283,16 @@ def return_screen():
 
 # History screen
 def history_screen():
+    st.markdown("""
+        <style>
+        .stButton>button {
+            margin-top: 10px; /* Add space between buttons */
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     if os.path.exists("mdde.jpg"):
-        st.image("mdde.jpg", width=500, use_container_width=True)
+        st.image("mdde.jpg", width=250, use_container_width=True)
     else:
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
