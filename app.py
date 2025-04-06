@@ -4,17 +4,24 @@ from datetime import datetime
 import os
 from PIL import Image
 
+# Define a persistent directory in the user's home folder
+DATA_DIR = os.path.expanduser("~/borrowapp_data")
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)  # Create the directory if it doesn’t exist
+
 # File paths
 labs_file = "labs.xlsx"
 tools_file = "tools.xlsx"
-borrow_file_name = "borrowed_equipment.xlsx"
+borrow_file_name = os.path.join(DATA_DIR, "borrowed_equipment.xlsx")
 
 # Load or create the borrow history file locally
 def get_borrow_file():
     if os.path.exists(borrow_file_name):
         return pd.read_excel(borrow_file_name)
     else:
-        return pd.DataFrame(columns=['שם משתמש', 'שם מעבדה', 'שם הכלי', 'כמות', 'תאריך השאלה'])
+        df = pd.DataFrame(columns=['שם משתמש', 'שם מעבדה', 'שם הכלי', 'כמות', 'תאריך השאלה'])
+        df.to_excel(borrow_file_name, index=False, engine='openpyxl')  # Create the file initially
+        return df
 
 borrow_df = get_borrow_file()
 
@@ -50,7 +57,7 @@ def main_screen():
         }
         .stTextInput, .stNumberInput, .stSelectbox {
             direction: rtl;
-            text-align: center; /* Center-align text within inputs */
+            text-align: center;
             max-width: 400px;
             margin: 0 auto;
         }
@@ -58,20 +65,20 @@ def main_screen():
             text-align: center;
         }
         .stButton>button {
-            height: 50px; /* Taller buttons */
-            width: 250px; /* Wider buttons to fit text in one row */
+            height: 50px;
+            width: 250px;
             direction: rtl;
-            margin: 10px auto; /* Spacing and centering */
+            margin: 10px auto;
             display: block;
-            font-size: 16px; /* Larger text */
-            border-radius: 5px; /* Rounded corners */
+            font-size: 16px;
+            border-radius: 5px;
         }
         .stButton>button:hover {
-            background-color: #e0e0e0; /* Hover effect */
-            cursor: pointer; /* Hand cursor */
+            background-color: #e0e0e0;
+            cursor: pointer;
         }
         .sidebar .stButton>button {
-            width: 60px; /* Wider delete button in sidebar */
+            width: 60px;
         }
         .sidebar .stButton {
             display: flex;
@@ -82,6 +89,7 @@ def main_screen():
         </style>
     """, unsafe_allow_html=True)
 
+    st.write(f"Borrow file location: {borrow_file_name}")  # Debug output
     if os.path.exists("mdde.jpg"):
         st.image("mdde.jpg", width=250, use_container_width=True)
     else:
@@ -98,7 +106,7 @@ def main_screen():
         labs = load_labs()
         lab = st.selectbox("", labs, key="lab_input", label_visibility="collapsed")
     
-    col1, col2 = st.columns([1, 1], gap="medium")  # Adjusted columns with gap
+    col1, col2 = st.columns([1, 1], gap="medium")
     with col1:
         if st.button("השאל כלים - Borrow Tools", key="borrow_btn", use_container_width=True):
             if username and lab:
@@ -121,13 +129,13 @@ def borrow_screen():
     st.markdown("""
         <style>
         .stButton>button {
-            margin-top: 10px; /* Add space between buttons */
+            margin-top: 10px;
             margin-left: auto;
             margin-right: auto;
         }
         .stTextInput, .stNumberInput, .stSelectbox {
             direction: rtl;
-            text-align: center; /* Center-align text within inputs */
+            text-align: center;
             max-width: 400px;
             margin: 0 auto;
         }
@@ -153,7 +161,7 @@ def borrow_screen():
         tool_name = st.text_input("", key="new_tool_input", label_visibility="collapsed")
         st.markdown('<div class="center-text">כמות להשאיל - Quantity to Borrow:</div>', unsafe_allow_html=True)
         quantity = st.number_input("", min_value=1, step=1, key="new_qty_input", label_visibility="collapsed")
-        
+    
     center_button_style = """
     <style>
     .stButton>button {
@@ -179,7 +187,6 @@ def borrow_screen():
         else:
             st.error("יש לרשום שם כלי - Please enter a tool name")
 
-    # Move cart to sidebar if items exist
     if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
         with st.sidebar:
             st.markdown('<div class="center">כלים שנבחרו - Tools Selected</div>', unsafe_allow_html=True)
@@ -215,8 +222,11 @@ def borrow_screen():
                         new_borrow_df = pd.concat([existing_borrows, new_borrow_df])
                     new_borrow_df.to_excel(borrow_file_name, index=False, engine='openpyxl')
                     st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
+                    st.write(f"File saved at: {borrow_file_name}")  # Debug output
                     st.session_state['borrow_session'] = []
                     st.session_state['screen'] = 'main'
+                except PermissionError:
+                    st.error(f"שגיאת הרשאות: אין גישה לכתוב לקובץ {borrow_file_name}")
                 except Exception as e:
                     st.error(f"שגיאה בשמירת הנתונים - Error saving data: {str(e)}")
             else:
@@ -230,13 +240,13 @@ def return_screen():
     st.markdown("""
         <style>
         .stButton>button {
-            margin-top: 10px; /* Add space between buttons */
+            margin-top: 10px;
             margin-left: auto;
             margin-right: auto;
         }
         .stTextInput, .stNumberInput, .stSelectbox {
             direction: rtl;
-            text-align: center; /* Center-align text within inputs */
+            text-align: center;
             max-width: 400px;
             margin: 0 auto;
         }
@@ -284,8 +294,6 @@ def return_screen():
             with st.container():
                 quantity_to_return = st.number_input("", min_value=1, step=1, key="return_qty_input", label_visibility="collapsed")
             
-            st.markdown(center_button_style, unsafe_allow_html=True)
-
             if st.button("הוסף להחזרה - Add to Return"):
                 if quantity_to_return <= int(selected_tool.split("כמות: ")[1].split(",")[0]):
                     tool_name = selected_tool.split(" (")[0]
@@ -315,10 +323,16 @@ def return_screen():
                            (borrow_df['תאריך השאלה'] == return_item['תאריך השאלה'])
                     borrow_df.loc[mask, 'כמות'] -= return_item['כמות להחזיר']
                 borrow_df = borrow_df[borrow_df['כמות'] > 0]
-                borrow_df.to_excel(borrow_file_name, index=False, engine='openpyxl')
-                st.success("כל ההחזרות בוצעו בהצלחה - All returns completed successfully")
-                st.session_state['return_session'] = []
-                st.session_state['screen'] = 'main'
+                try:
+                    borrow_df.to_excel(borrow_file_name, index=False, engine='openpyxl')
+                    st.success("כל ההחזרות בוצעו בהצלחה - All returns completed successfully")
+                    st.write(f"File updated at: {borrow_file_name}")  # Debug output
+                    st.session_state['return_session'] = []
+                    st.session_state['screen'] = 'main'
+                except PermissionError:
+                    st.error(f"שגיאת הרשאות: אין גישה לכתוב לקובץ {borrow_file_name}")
+                except Exception as e:
+                    st.error(f"שגיאה בשמירת הנתונים - Error saving data: {str(e)}")
         else:
             st.markdown('<div class="center">אין השאלות קודמות - No previous borrowings</div>', unsafe_allow_html=True)
     except FileNotFoundError:
@@ -334,7 +348,7 @@ def history_screen():
     st.markdown("""
         <style>
         .stButton>button {
-            margin-top: 10px; /* Add space between buttons */
+            margin-top: 10px;
         }
         </style>
     """, unsafe_allow_html=True)
