@@ -90,9 +90,9 @@ def main_screen():
     qr.add_data(app_url)
     qr.make()
     qr_img = qr.make_image(fill='black', back_color='white')
-    qr_img = qr_img.resize((qr_img.size[0] // 2, qr_img.size[1] // 2))  # Reduce size by half
+    qr_img = qr_img.resize((qr_img.size[0] // 4, qr_img.size[1] // 4))  # Reduce size by 1/4
     qr_img.save("qr_login.png")
-    st.image("qr_login.png", caption="סרוק כדי לגשת לאפליקציה מהנייד - Scan to Access App from Cellphone", width=250, use_container_width=True)
+    st.image("qr_login.png", caption="סרוק כדי לגשת לאפליקציה מהנייד - Scan to Access App from Cellphone", width=125, use_container_width=True)
 
     st.markdown('<div class="center">שם משתמש - Username:</div>', unsafe_allow_html=True)
     with st.container():
