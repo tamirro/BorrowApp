@@ -9,7 +9,7 @@ from PIL import Image
 # File paths
 labs_file = "labs.xlsx"
 tools_file = "tools.xlsx"
-persistent_directory = "/home/storehouse/Documents/BorrowApp/BorrowApp"  # Updated directory for persistent storage
+persistent_directory = os.path.expanduser("~/BorrowApp")  # Using a directory within the user's home directory
 borrow_file = os.path.join(persistent_directory, "borrowed_equipment.xlsx")
 
 # Ensure the persistent directory exists
