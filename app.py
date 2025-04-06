@@ -4,6 +4,7 @@ import qrcode
 from datetime import datetime
 import os
 import tempfile
+from PIL import Image
 
 # File paths
 labs_file = "labs.xlsx"
@@ -42,6 +43,7 @@ def main_screen():
         .center-inputs {
             display: flex;
             justify-content: center;
+            align-items: center;
             width: 100%;
         }
         .stTextInput, .stNumberInput, .stSelectbox {
@@ -69,6 +71,12 @@ def main_screen():
         .sidebar .stButton>button {
             width: 60px; /* Wider delete button in sidebar */
         }
+        .sidebar .stButton {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -80,7 +88,7 @@ def main_screen():
     st.markdown('<h1 class="center">מערכת השאלת ציוד</h1>', unsafe_allow_html=True)
     st.markdown('<h1 class="center">Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
-    qr = qrcode.QRCode(box_size=2, border=1)  # Adjusting box size and border for better quality
+    qr = qrcode.QRCode(box_size=10, border=1)  # Adjusting box size and border for better quality
     app_url = "http://localhost:8501"
     try:
         if "app_url" in st.secrets:
@@ -89,8 +97,8 @@ def main_screen():
         pass
     qr.add_data(app_url)
     qr.make()
-    qr_img = qr.make_image(fill='black', back_color='white')
-    qr_img = qr_img.resize((qr_img.size[0] // 4, qr_img.size[1] // 4))  # Reduce size by 1/4
+    qr_img = qr.make_image(fill='black', back_color='white').convert('RGB')
+    qr_img = qr_img.resize((qr_img.size[0] // 4, qr_img.size[1] // 4), Image.ANTIALIAS)  # Reduce size by 1/4
     qr_img.save("qr_login.png")
     st.image("qr_login.png", caption="סרוק כדי לגשת לאפליקציה מהנייד - Scan to Access App from Cellphone", width=125, use_container_width=True)
 
@@ -126,6 +134,15 @@ def borrow_screen():
         <style>
         .stButton>button {
             margin-top: 10px; /* Add space between buttons */
+        }
+        .stTextInput, .stNumberInput, .stSelectbox {
+            direction: rtl;
+            text-align: center; /* Center-align text within inputs */
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .stTextInput input, .stNumberInput input {
+            text-align: center;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -211,6 +228,15 @@ def return_screen():
         .stButton>button {
             margin-top: 10px; /* Add space between buttons */
         }
+        .stTextInput, .stNumberInput, .stSelectbox {
+            direction: rtl;
+            text-align: center; /* Center-align text within inputs */
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .stTextInput input, .stNumberInput input {
+            text-align: center;
+        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -220,7 +246,7 @@ def return_screen():
         st.warning("הלוגו mdde.jpg לא נמצא - Logo mdde.jpg not found")
 
     st.markdown('<h2 class="center">החזרת כלים</h2>', unsafe_allow_html=True)
-    st.markdown('<h2 class="center">Return Tools</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="center">Return Tools</2>', unsafe_allow_html=True)
     
     try:
         borrow_df = pd.read_excel(borrow_file)
