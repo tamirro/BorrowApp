@@ -80,7 +80,7 @@ def main_screen():
     st.markdown('<h1 class="center">מערכת השאלת ציוד</h1>', unsafe_allow_html=True)
     st.markdown('<h1 class="center">Equipment Borrowing System</h1>', unsafe_allow_html=True)
     
-    qr = qrcode.QRCode()
+    qr = qrcode.QRCode(box_size=2, border=1)  # Adjusting box size and border for better quality
     app_url = "http://localhost:8501"
     try:
         if "app_url" in st.secrets:
