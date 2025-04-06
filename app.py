@@ -209,12 +209,12 @@ def borrow_screen():
                 current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 for item in st.session_state['borrow_session']:
                     item['תאריך השאלה'] = current_time
-                borrow_df = pd.DataFrame(st.session_state['borrow_session'])
+                new_borrow_df = pd.DataFrame(st.session_state['borrow_session'])
                 try:
                     if os.path.exists(borrow_file_name):
                         existing_borrows = pd.read_excel(borrow_file_name)
-                        borrow_df = pd.concat([existing_borrows, borrow_df])
-                    borrow_df.to_excel(borrow_file_name, index=False, engine='openpyxl')
+                        new_borrow_df = pd.concat([existing_borrows, new_borrow_df])
+                    new_borrow_df.to_excel(borrow_file_name, index=False, engine='openpyxl')
                     st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
                     st.session_state['borrow_session'] = []
                     st.session_state['screen'] = 'main'
