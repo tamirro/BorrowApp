@@ -3,7 +3,6 @@ import pandas as pd
 import qrcode
 from datetime import datetime
 import os
-import subprocess
 from PIL import Image
 
 # File paths
@@ -28,17 +27,6 @@ def load_labs():
     except Exception as e:
         st.error(f"שגיאה בטעינת המעבדות: {str(e)} - Error loading labs: {str(e)}")
         return []
-
-# Function to push changes to the repository
-def push_to_repo(file_path):
-    try:
-        repo_dir = os.path.dirname(file_path)
-        subprocess.run(["git", "add", file_path], cwd=repo_dir, check=True)
-        subprocess.run(["git", "commit", "-m", f"Update borrowed history {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"], cwd=repo_dir, check=True)
-        subprocess.run(["git", "push"], cwd=repo_dir, check=True)
-        st.success("Borrowed history file successfully pushed to the repository.")
-    except subprocess.CalledProcessError as e:
-        st.error(f"Failed to push changes to the repository: {str(e)}")
 
 # Main screen
 def main_screen():
@@ -229,7 +217,6 @@ def borrow_screen():
                 except FileNotFoundError:
                     pass
                 borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
-                push_to_repo(borrow_file)  # Push changes to the repository
                 st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
                 st.session_state['borrow_session'] = []
                 st.session_state['screen'] = 'main'
@@ -317,7 +304,6 @@ def return_screen():
                     borrow_df.loc[mask, 'כמות'] -= return_item['כמות להחזיר']
                 borrow_df = borrow_df[borrow_df['כמות'] > 0]
                 borrow_df.to_excel(borrow_file, index=False, engine='openpyxl')
-                push_to_repo(borrow_file)  # Push changes to the repository
                 st.success("כל ההחזרות בוצעו בהצלחה - All returns completed successfully")
                 st.session_state['return_session'] = []
                 st.session_state['screen'] = 'main'
