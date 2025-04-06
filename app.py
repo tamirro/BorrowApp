@@ -72,44 +72,68 @@ def main_screen():
             else:
                 st.error("יש להזין שם משתמש ומעבדה - Please enter username and lab")
 
-# Borrow screen with editing capability
+# Borrow screen with improved visual interface
 def borrow_screen(tools_dict):
-    st.subheader("השאלת כלים - Borrow Tools")
-    tool_name = st.text_input("שם הכלי (עברית או אנגלית) - Tool Name (Hebrew or English)")
-    quantity = st.number_input("כמות להשאיל - Quantity to Borrow", min_value=1, step=1)
-    
-    if st.button("הוסף לרשימה - Add to List"):
-        if tool_name:
-            tool_english = tools_dict.get(tool_name, "")
-            display_name = f"{tool_name} - {tool_english}" if tool_english else tool_name
-            if 'borrow_session' not in st.session_state:
-                st.session_state['borrow_session'] = []
-            st.session_state['borrow_session'].append({
-                'שם משתמש': st.session_state['username'],
-                'שם מעבדה': st.session_state['lab'],
-                'שם הכלי': tool_name,
-                'שם הכלי באנגלית': tool_english,
-                'כמות': quantity
-            })
-            st.success(f"נוסף: {display_name} - כמות: {quantity} - Quantity: {quantity}")
-        else:
-            st.error("יש לרשום שם כלי - Please enter a tool name")
+    # CSS for RTL and button alignment
+    st.markdown("""
+        <style>
+        .rtl {
+            direction: rtl;
+            text-align: right;
+        }
+        .stButton>button {
+            height: 38px;  /* Match height of text/number inputs */
+            width: 100%;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-    # Display and edit borrow session
+    st.subheader("השאלת כלים - Borrow Tools")
+    
+    # Input area
+    with st.container():
+        st.markdown('<div class="rtl">שם הכלי (עברית או אנגלית) - Tool Name (Hebrew or English):</div>', unsafe_allow_html=True)
+        tool_name = st.text_input("", key="new_tool")  # Empty label, handled by markdown
+        st.markdown('<div class="rtl">כמות להשאיל - Quantity to Borrow:</div>', unsafe_allow_html=True)
+        quantity = st.number_input("", min_value=1, step=1, key="new_qty")  # Empty label
+        
+        if st.button("הוסף לרשימה - Add to List"):
+            if tool_name:
+                tool_english = tools_dict.get(tool_name, "")
+                display_name = f"{tool_name} - {tool_english}" if tool_english else tool_name
+                if 'borrow_session' not in st.session_state:
+                    st.session_state['borrow_session'] = []
+                st.session_state['borrow_session'].append({
+                    'שם משתמש': st.session_state['username'],
+                    'שם מעבדה': st.session_state['lab'],
+                    'שם הכלי': tool_name,
+                    'שם הכלי באנגלית': tool_english,
+                    'כמות': quantity
+                })
+                st.success(f"נוסף: {display_name} - כמות: {quantity} - Quantity: {quantity}")
+            else:
+                st.error("יש לרשום שם כלי - Please enter a tool name")
+
+    # Divider
+    st.divider()
+
+    # Borrow session area
     if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
-        st.write("כלים שנבחרו ב-Session זה - Tools Selected in This Session:")
+        st.markdown('<div class="rtl">כלים שנבחרו ב-Session זה - Tools Selected in This Session:</div>', unsafe_allow_html=True)
         edited_session = []
         for i, item in enumerate(st.session_state['borrow_session']):
-            col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
+            col1, col2, col3 = st.columns([3, 1, 1])
             with col1:
-                new_tool_name = st.text_input(f"כלי {i+1}", value=item['שם הכלי'], key=f"tool_{i}")
+                new_tool_name = st.text_input("", value=item['שם הכלי'], key=f"tool_{i}")
+                if item['שם הכלי באנגלית']:
+                    st.markdown(f'<div class="rtl">{new_tool_name} - {item["שם הכלי באנגלית"]}</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown(f'<div class="rtl">{new_tool_name}</div>', unsafe_allow_html=True)
             with col2:
-                new_quantity = st.number_input(f"כמות {i+1}", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}")
+                new_quantity = st.number_input("", min_value=1, step=1, value=item['כמות'], key=f"qty_{i}")
             with col3:
                 if st.button("מחק - Delete", key=f"del_{i}"):
-                    continue  # Skip this item to delete it
-            with col4:
-                st.write(f"{item['שם הכלי באנגלית']}")
+                    continue
             new_tool_english = tools_dict.get(new_tool_name, "")
             edited_session.append({
                 'שם משתמש': item['שם משתמש'],
@@ -120,26 +144,28 @@ def borrow_screen(tools_dict):
             })
         st.session_state['borrow_session'] = edited_session
 
-    if st.button("אשר את כל ההשאלות - Confirm All Borrowings"):
-        if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            for item in st.session_state['borrow_session']:
-                item['תאריך השאלה'] = current_time
-            borrow_df = pd.DataFrame(st.session_state['borrow_session'])
-            try:
-                existing_borrows = pd.read_excel(borrow_file)
-                borrow_df = pd.concat([existing_borrows, borrow_df])
-            except FileNotFoundError:
-                pass
-            borrow_df.to_excel(borrow_file, index=False)
-            st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
-            st.session_state['borrow_session'] = []
+    col_confirm, col_back = st.columns(2)
+    with col_confirm:
+        if st.button("אשר את כל ההשאלות - Confirm All Borrowings"):
+            if 'borrow_session' in st.session_state and st.session_state['borrow_session']:
+                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                for item in st.session_state['borrow_session']:
+                    item['תאריך השאלה'] = current_time
+                borrow_df = pd.DataFrame(st.session_state['borrow_session'])
+                try:
+                    existing_borrows = pd.read_excel(borrow_file)
+                    borrow_df = pd.concat([existing_borrows, borrow_df])
+                except FileNotFoundError:
+                    pass
+                borrow_df.to_excel(borrow_file, index=False)
+                st.success("כל ההשאלות בוצעו בהצלחה - All borrowings completed successfully")
+                st.session_state['borrow_session'] = []
+                st.session_state['screen'] = 'main'
+            else:
+                st.error("לא נבחרו כלים להשאלה - No tools selected for borrowing")
+    with col_back:
+        if st.button("חזור - Back"):
             st.session_state['screen'] = 'main'
-        else:
-            st.error("לא נבחרו כלים להשאלה - No tools selected for borrowing")
-
-    if st.button("חזור - Back"):
-        st.session_state['screen'] = 'main'
 
 # Return screen
 def return_screen():
